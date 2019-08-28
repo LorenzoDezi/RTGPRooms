@@ -13,10 +13,65 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{846fb1e2-4a1e-4ce4-a1bf-eb4572e2ec91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Camera.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Mesh.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Model.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Shader.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Skybox.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\fragment_lamp.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_phong.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertex_lamp.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertex_phong.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertex_skybox.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_skybox.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
