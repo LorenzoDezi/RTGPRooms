@@ -36,6 +36,9 @@
     <ClCompile Include="Skybox.cpp">
       <Filter>File di risorse</Filter>
     </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>File di risorse</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Camera.h">
@@ -51,6 +54,9 @@
       <Filter>File di origine</Filter>
     </ClInclude>
     <ClInclude Include="include\Skybox.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.h">
       <Filter>File di origine</Filter>
     </ClInclude>
   </ItemGroup>

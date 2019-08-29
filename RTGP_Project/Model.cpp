@@ -37,6 +37,17 @@ void Model::loadModel(std::string path)
 	processNode(scene->mRootNode, scene);
 }
 
+std::vector<Vertex> Model::getVertices()
+{
+	std::vector<Vertex> result;
+	for(auto& mesh : meshes) {
+		for (auto& vertex : mesh.vertices) {
+			result.push_back(vertex);
+		}
+	}
+	return result;
+}
+
 void Model::processNode(aiNode * node, const aiScene * scene)
 {
 	// process all the node's meshes (if any)

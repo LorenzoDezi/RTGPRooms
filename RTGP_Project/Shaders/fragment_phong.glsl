@@ -3,7 +3,6 @@
 struct Material {
 	sampler2D diffuse;
 	sampler2D specular;
-	sampler2D roughness;
 	float shininess;
 };
 
@@ -45,14 +44,12 @@ uniform vec3 objectColor;
 uniform vec3 viewPos;
 uniform Material material;
 
-#define NR_POINT_LIGHTS 4
+#define NR_POINT_LIGHTS 6
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform DirLight dirLight;
-uniform SpotLight spotLight;
 
 vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir);
 vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir);
-vec3 CalcSpotLight(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir);
 
 
 void main() {
@@ -62,9 +59,7 @@ void main() {
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 		result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
 	}
-	result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
-	//FragColor = vec4(result, 1.0);
-	FragColor = vec4(texture(material.diffuse, TexCoords));
+	FragColor = vec4(result, 1.0);
 }
 
 vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
@@ -79,7 +74,9 @@ vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
 	//directional light contribution
+	//DEBUG
 	return specular + diffuse + ambient;
+	//return diffuse + ambient;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
@@ -96,24 +93,6 @@ vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords)) * attenuation;
 	//point light contribution
-	return specular + diffuse + ambient;
-}
-
-vec3 CalcSpotLight(SpotLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
-	vec3 lightDir = normalize(light.position - fragPos);
-	float theta = dot(lightDir, normalize(-light.direction));
-	float epsilon = light.cutOff - light.outerCutOff;
-	float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
-	//Ambient calculation
-	vec3 ambient = vec3(texture(material.diffuse, TexCoords)) * light.ambient * intensity;
-	//diffuse calculation
-	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = (diff * vec3(texture(material.diffuse, TexCoords))) * light.diffuse * intensity;
-	//specular calculation
-	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords)) * intensity;
-	//contribution of spot light
 	return specular + diffuse + ambient;
 }
 
