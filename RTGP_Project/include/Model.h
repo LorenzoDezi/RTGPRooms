@@ -21,7 +21,7 @@ public:
 	std::vector<int> GetVAOs();
 	void Draw(Shader shader);
 	void DrawInstanced(Shader shader, int amount);
-	std::vector<Vertex> getVertices();
+	std::vector<Mesh> getMeshes();
 private:
 	/*  Model Data  */
 	std::vector<Mesh> meshes;

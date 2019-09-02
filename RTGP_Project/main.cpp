@@ -27,7 +27,7 @@ GLfloat lastX = 0.0f;
 GLfloat lastY = 0.0f;
 Physics physicsSimulation;
 GLfloat maxSecPerFrame = 1.0f / 60.0f;
-Camera camera(physicsSimulation, glm::vec3(0.0f, 1.5f, 0.0f));
+Camera camera(physicsSimulation, glm::vec3(0.0f, 15.0f, 0.0f));
 
 int main() {
 	glfwInit();
@@ -58,6 +58,10 @@ int main() {
 	Model roomModel("Assets/rooms2.obj");
 	Model torchModel("Assets/torch2.obj");
 	Model sphereModel("Assets/sphere.obj");
+
+	//Physics setup
+	physicsSimulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(), glm::vec3(0.0f, 0.0f, 0.0f));
+
 	//Light positions setup
 	glm::vec3 lightSupportPositions[]{
 		glm::vec3(1.25f, 2.0f, 2.75f),

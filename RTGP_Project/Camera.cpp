@@ -8,9 +8,9 @@ Camera::Camera(Physics physicsSimulation, glm::vec3 position, glm::vec3 size, gl
 	Yaw = yaw;
 	Pitch = pitch;
 	//TODO Create cylinder shape rigid body
-	rigidbody = physicsSimulation.createRigidBody(CAPSULE, position, size, 
-		glm::vec3(0.1f, 0.0f, 0.1f), 50.0f, 0.2f, 0.0f);
-	rigidbody->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+	rigidbody = physicsSimulation.createRigidBody(BOX, position, size, 
+		glm::vec3(0.1f, 0.0f, 0.1f), 50.0f, 1.5f, 0.0f);
+	//rigidbody->setGravity(btVector3(0.0f, 0.0f, 0.0f));
 	rigidbody->setActivationState(DISABLE_DEACTIVATION);
 	updateCameraVectors();
 }
@@ -25,7 +25,7 @@ glm::mat4 Camera::GetViewMatrix()
 
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
-	float forceIntensity = 15.0f;
+	float forceIntensity = 5.0f;
 	//TODO: Set maximum velocity
 	glm::vec3 forceVector;
 	if (direction == FORWARD)
@@ -37,7 +37,7 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 	if (direction == RIGHT)
 		forceVector = Right * forceIntensity;
 	btVector3 btForceVector(forceVector.x, forceVector.y, forceVector.z);
-	rigidbody->applyCentralForce(btForceVector);
+	rigidbody->applyCentralImpulse(btForceVector);
 	updateCameraVectors();
 }
 
@@ -69,7 +69,8 @@ void Camera::updateCameraVectors()
 {
 	// Calculate the new Front vector
 	btVector3 translation = rigidbody->getWorldTransform().getOrigin();
-	Position = glm::vec3(translation.x(), translation.y(), translation.z());
+	//The y value is slightly translated in order to achieve a "head position" effect
+	Position = glm::vec3(translation.x(), translation.y() + 1.5f, translation.z());
 	glm::vec3 front;
 	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
 	front.y = sin(glm::radians(Pitch));

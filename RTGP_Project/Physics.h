@@ -15,6 +15,8 @@ Universita' degli Studi di Milano
 */
 
 #include <bullet/btBulletDynamicsCommon.h>
+#include "bullet/BulletCollision/CollisionShapes/btShapeHull.h"
+#include "Model.h"
 #include <glm/glm.hpp>
 
 //enum to identify the 2 considered Collision Shapes
@@ -42,6 +44,8 @@ public:
 	// The Collision Shape is a reference solid that approximates the shape of the actual object of the scene. The Physical simulation is applied to these solids, and the rotations and positions of these solids are used on the real models.
 	btRigidBody* createRigidBody(int type, glm::vec3 pos, glm::vec3 size,
 		glm::vec3 rot, float m, float friction, float restitution);
+
+	btRigidBody* createStaticRigidBodyWithTriangleMesh(Model model, glm::vec3 pos, glm::vec3 size, glm::vec3 rot);
 
 	//////////////////////////////////////////
 	// We delete the data of the physical simulation when the program ends

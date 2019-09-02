@@ -97,6 +97,64 @@ btRigidBody* Physics::createRigidBody(int type, glm::vec3 pos,
 	return body;
 }
 
+btRigidBody * Physics::createStaticRigidBodyWithTriangleMesh(Model model, glm::vec3 pos, glm::vec3 size, glm::vec3 rot)
+{
+
+	for (auto& mesh : model.getMeshes()) {
+		btTriangleMesh * trimesh = new btTriangleMesh();
+		for (int i = 0; i < mesh.indices.size(); i+=3)
+		{
+			int index0 = mesh.indices[i];
+			int index1 = mesh.indices[i+1];
+			int index2 = mesh.indices[i+2];
+			btVector3 vertex0(mesh.vertices[index0].Position.x, mesh.vertices[index0].Position.y, mesh.vertices[index0].Position.z);
+			btVector3 vertex1(mesh.vertices[index1].Position.x, mesh.vertices[index1].Position.y, mesh.vertices[index1].Position.z);
+			btVector3 vertex2(mesh.vertices[index2].Position.x, mesh.vertices[index2].Position.y, mesh.vertices[index2].Position.z);
+
+			trimesh->addTriangle(vertex0, vertex1, vertex2);
+		}
+		btBvhTriangleMeshShape *tmpshape = new btBvhTriangleMeshShape(trimesh, false);
+		/*btShapeHull *hull = new btShapeHull(tmpshape);
+		btScalar margin = tmpshape->getMargin();
+		hull->buildHull(margin);
+		tmpshape->setUserPointer(hull);*/
+
+		// we convert the glm vector to a Bullet vector
+		btVector3 position = btVector3(pos.x, pos.y, pos.z);
+
+		// we set a quaternion from the Euler angles passed as parameters
+		btQuaternion rotation;
+		rotation.setEuler(rot.x, rot.y, rot.z);
+
+		// we add this Collision Shape to the vector
+		this->collisionShapes.push_back(tmpshape);
+
+		// We set the initial transformations
+		btTransform objTransform;
+		objTransform.setIdentity();
+		objTransform.setRotation(rotation);
+		// we set the initial position (it must be equal to the position of the corresponding model of the scene)
+		objTransform.setOrigin(position);
+		btVector3 localInertia(0.0f, 0.0f, 0.0f);
+
+		// we initialize the Motion State of the object on the basis of the transformations
+		// Using the Motion State, the physical simulation will calculate the positions and rotations of the rigid body
+		btDefaultMotionState* motionState = new btDefaultMotionState(objTransform);
+
+		// we set the data structure for the rigid body
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(0.0f, motionState, tmpshape, localInertia);
+		// we create the rigid body
+		btRigidBody *body = new btRigidBody(rbInfo);
+
+		//add the body to the dynamics world
+		this->dynamicsWorld->addRigidBody(body);
+		// the function returns a pointer to the created rigid body
+		// in a standard simulation (e.g., only objects falling), it is not needed to have a reference to a single rigid body, but in some cases (e.g., the application of an impulse), it is needed.
+	}
+	//DEBUG
+	return nullptr;
+}
+
 void Physics::Clear()
 {
 	//we remove the rigid bodies from the dynamics world and delete them

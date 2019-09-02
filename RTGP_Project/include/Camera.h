@@ -26,6 +26,7 @@ const float PITCH = 0.0f;
 const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
+const float MAX_VELOCITY = 25.0f;
 
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
@@ -51,7 +52,7 @@ public:
 
 	// Constructor with vectors
 	Camera(Physics physicsSimulation, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), 
-		glm::vec3 size = glm::vec3(4.0f, 2.0f, 4.0f),
+		glm::vec3 size = glm::vec3(0.4f, 0.5f, 0.4f),
 		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
 		float yaw = YAW, float pitch = PITCH);
 	

@@ -23,6 +23,11 @@ void Model::DrawInstanced(Shader shader, int amount)
 	}
 }
 
+std::vector<Mesh> Model::getMeshes()
+{
+	return meshes;
+}
+
 void Model::loadModel(std::string path)
 {
 	Assimp::Importer import;
@@ -35,17 +40,6 @@ void Model::loadModel(std::string path)
 	}
 	directory = path.substr(0, path.find_last_of('/'));
 	processNode(scene->mRootNode, scene);
-}
-
-std::vector<Vertex> Model::getVertices()
-{
-	std::vector<Vertex> result;
-	for(auto& mesh : meshes) {
-		for (auto& vertex : mesh.vertices) {
-			result.push_back(vertex);
-		}
-	}
-	return result;
 }
 
 void Model::processNode(aiNode * node, const aiScene * scene)
