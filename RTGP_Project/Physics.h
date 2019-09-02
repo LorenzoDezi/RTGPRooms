@@ -43,9 +43,9 @@ public:
 	// Method for the creation of a rigid body, based on a Box or Sphere Collision Shape
 	// The Collision Shape is a reference solid that approximates the shape of the actual object of the scene. The Physical simulation is applied to these solids, and the rotations and positions of these solids are used on the real models.
 	btRigidBody* createRigidBody(int type, glm::vec3 pos, glm::vec3 size,
-		glm::vec3 rot, float m, float friction, float restitution);
+		glm::vec3 rot, float m, float friction, float restitution, float angularDamping = INFINITY, float rollingFriction = INFINITY);
 
-	btRigidBody* createStaticRigidBodyWithTriangleMesh(Model model, glm::vec3 pos, glm::vec3 size, glm::vec3 rot);
+	btRigidBody* createStaticRigidBodyWithTriangleMesh(Model model, glm::vec3 pos, glm::vec3 size, glm::vec3 rot, float friction = 0.0f);
 
 	//////////////////////////////////////////
 	// We delete the data of the physical simulation when the program ends

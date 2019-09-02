@@ -24,7 +24,9 @@ Physics::Physics()
 }
 
 btRigidBody* Physics::createRigidBody(int type, glm::vec3 pos, 
-	glm::vec3 size, glm::vec3 rot, float m, float friction, float restitution)
+	glm::vec3 size, glm::vec3 rot, float m, 
+	float friction, float restitution,
+	float angularDamping, float rollingFriction)
 {
 
 	btCollisionShape* cShape = nullptr;
@@ -83,8 +85,8 @@ btRigidBody* Physics::createRigidBody(int type, glm::vec3 pos,
 	if (type == SPHERE || type == CAPSULE) {
 		// the sphere touches the plane on the plane on a single point, and thus the friction between sphere and the plane does not work -> the sphere does not stop
 		// To avoid the problem, we apply the rolling friction together with an angular damping (which applies a resistence during the rolling movement), in order to make the sphere to stop after a while
-		rbInfo.m_angularDamping = 0.3f;
-		rbInfo.m_rollingFriction = 0.3f;
+		rbInfo.m_angularDamping = angularDamping;
+		rbInfo.m_rollingFriction = rollingFriction;
 	}
 
 	// we create the rigid body
@@ -97,7 +99,8 @@ btRigidBody* Physics::createRigidBody(int type, glm::vec3 pos,
 	return body;
 }
 
-btRigidBody * Physics::createStaticRigidBodyWithTriangleMesh(Model model, glm::vec3 pos, glm::vec3 size, glm::vec3 rot)
+btRigidBody * Physics::createStaticRigidBodyWithTriangleMesh(Model model, glm::vec3 pos, 
+	glm::vec3 size, glm::vec3 rot, float friction)
 {
 
 	for (auto& mesh : model.getMeshes()) {
@@ -143,6 +146,7 @@ btRigidBody * Physics::createStaticRigidBodyWithTriangleMesh(Model model, glm::v
 
 		// we set the data structure for the rigid body
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(0.0f, motionState, tmpshape, localInertia);
+		rbInfo.m_friction = friction;
 		// we create the rigid body
 		btRigidBody *body = new btRigidBody(rbInfo);
 

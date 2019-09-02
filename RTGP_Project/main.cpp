@@ -60,7 +60,8 @@ int main() {
 	Model sphereModel("Assets/sphere.obj");
 
 	//Physics setup
-	physicsSimulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(), glm::vec3(0.0f, 0.0f, 0.0f));
+	physicsSimulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(), 
+		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 
 	//Light positions setup
 	glm::vec3 lightSupportPositions[]{
@@ -204,20 +205,20 @@ void mouse_callback(GLFWwindow * w, double xpos, double ypos) {
 }
 
 void processInput(GLFWwindow *w) {
-	if (glfwGetKey(w, GLFW_KEY_ESCAPE)) {
+	if (glfwGetKey(w, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetWindowShouldClose(w, true);
 	}
-	if (glfwGetKey(w, GLFW_KEY_W)) {
-		camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(w, GLFW_KEY_W) == GLFW_PRESS) {
+		camera.ProcessKeyboard(FORWARD);
 	}
-	if (glfwGetKey(w, GLFW_KEY_S)) {
-		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(w, GLFW_KEY_S) == GLFW_PRESS) {
+		camera.ProcessKeyboard(BACKWARD);
 	}
-	if (glfwGetKey(w, GLFW_KEY_A)) {
-		camera.ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(w, GLFW_KEY_A) == GLFW_PRESS) {
+		camera.ProcessKeyboard(LEFT);
 	}
-	if (glfwGetKey(w, GLFW_KEY_D)) {
-		camera.ProcessKeyboard(RIGHT, deltaTime);
+	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
+		camera.ProcessKeyboard(RIGHT);
 	}
 }
 

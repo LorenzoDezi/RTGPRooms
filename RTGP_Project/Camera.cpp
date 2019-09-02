@@ -8,9 +8,8 @@ Camera::Camera(Physics physicsSimulation, glm::vec3 position, glm::vec3 size, gl
 	Yaw = yaw;
 	Pitch = pitch;
 	//TODO Create cylinder shape rigid body
-	rigidbody = physicsSimulation.createRigidBody(BOX, position, size, 
-		glm::vec3(0.1f, 0.0f, 0.1f), 50.0f, 1.5f, 0.0f);
-	//rigidbody->setGravity(btVector3(0.0f, 0.0f, 0.0f));
+	rigidbody = physicsSimulation.createRigidBody(CAPSULE, position, size, 
+		glm::vec3(0.1f, 0.0f, 0.1f), 50.0f, 0.6f, 0.0f);
 	rigidbody->setActivationState(DISABLE_DEACTIVATION);
 	updateCameraVectors();
 }
@@ -23,9 +22,9 @@ glm::mat4 Camera::GetViewMatrix()
 }
 
 
-void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
+void Camera::ProcessKeyboard(Camera_Movement direction)
 {
-	float forceIntensity = 5.0f;
+	float forceIntensity = 300.0f;
 	//TODO: Set maximum velocity
 	glm::vec3 forceVector;
 	if (direction == FORWARD)
@@ -37,8 +36,11 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 	if (direction == RIGHT)
 		forceVector = Right * forceIntensity;
 	btVector3 btForceVector(forceVector.x, forceVector.y, forceVector.z);
-	rigidbody->applyCentralImpulse(btForceVector);
-	updateCameraVectors();
+	btScalar velocity = rigidbody->getLinearVelocity().length2();
+	if (velocity < MAX_VELOCITY) {
+		rigidbody->applyCentralForce(btForceVector);
+		updateCameraVectors();
+	}
 }
 
 // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
