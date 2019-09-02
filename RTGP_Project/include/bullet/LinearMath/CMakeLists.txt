@@ -11,8 +11,12 @@ SET(LinearMath_SRCS
 	btPolarDecomposition.cpp
 	btQuickprof.cpp
 	btSerializer.cpp
+	btSerializer64.cpp
 	btThreads.cpp
 	btVector3.cpp
+	TaskScheduler/btTaskScheduler.cpp
+	TaskScheduler/btThreadSupportPosix.cpp
+	TaskScheduler/btThreadSupportWin32.cpp
 )
 
 SET(LinearMath_HDRS
@@ -43,6 +47,7 @@ SET(LinearMath_HDRS
 	btTransform.h
 	btTransformUtil.h
 	btVector3.h
+	TaskScheduler/btThreadSupportInterface.h
 )
 
 ADD_LIBRARY(LinearMath ${LinearMath_SRCS} ${LinearMath_HDRS})

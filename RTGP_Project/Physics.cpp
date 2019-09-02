@@ -23,10 +23,11 @@ Physics::Physics()
 	this->dynamicsWorld->setGravity(btVector3(0.0f, -9.82f, 0.0f));
 }
 
-btRigidBody * Physics::createRigidBody(int type, glm::vec3 pos, glm::vec3 size, glm::vec3 rot, float m, float friction, float restitution)
+btRigidBody* Physics::createRigidBody(int type, glm::vec3 pos, 
+	glm::vec3 size, glm::vec3 rot, float m, float friction, float restitution)
 {
 
-	btCollisionShape* cShape = NULL;
+	btCollisionShape* cShape = nullptr;
 
 	// we convert the glm vector to a Bullet vector
 	btVector3 position = btVector3(pos.x, pos.y, pos.z);
@@ -46,6 +47,8 @@ btRigidBody * Physics::createRigidBody(int type, glm::vec3 pos, glm::vec3 size, 
 	// Sphere Collision Shape (in this case we consider only the first component)
 	else if (type == SPHERE)
 		cShape = new btSphereShape(size.x);
+	else if (type == CAPSULE)
+		cShape = new btCapsuleShape(size.x / 2, size.y);
 
 	// we add this Collision Shape to the vector
 	this->collisionShapes.push_back(cShape);
@@ -77,7 +80,7 @@ btRigidBody * Physics::createRigidBody(int type, glm::vec3 pos, glm::vec3 size, 
 	rbInfo.m_restitution = restitution;
 
 	// if the Collision Shape is a sphere
-	if (type == SPHERE) {
+	if (type == SPHERE || type == CAPSULE) {
 		// the sphere touches the plane on the plane on a single point, and thus the friction between sphere and the plane does not work -> the sphere does not stop
 		// To avoid the problem, we apply the rolling friction together with an angular damping (which applies a resistence during the rolling movement), in order to make the sphere to stop after a while
 		rbInfo.m_angularDamping = 0.3f;
@@ -85,11 +88,10 @@ btRigidBody * Physics::createRigidBody(int type, glm::vec3 pos, glm::vec3 size, 
 	}
 
 	// we create the rigid body
-	btRigidBody* body = new btRigidBody(rbInfo);
+	btRigidBody *body = new btRigidBody(rbInfo);
 
 	//add the body to the dynamics world
 	this->dynamicsWorld->addRigidBody(body);
-
 	// the function returns a pointer to the created rigid body
 	// in a standard simulation (e.g., only objects falling), it is not needed to have a reference to a single rigid body, but in some cases (e.g., the application of an impulse), it is needed.
 	return body;

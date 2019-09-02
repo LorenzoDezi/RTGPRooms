@@ -14,13 +14,11 @@ Master degree in Computer Science
 Universita' degli Studi di Milano
 */
 
-#pragma once
-
 #include <bullet/btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
 //enum to identify the 2 considered Collision Shapes
-enum shapes { BOX, SPHERE };
+enum shapes { BOX, SPHERE, CAPSULE };
 
 ///////////////////  Physics class ///////////////////////
 class Physics

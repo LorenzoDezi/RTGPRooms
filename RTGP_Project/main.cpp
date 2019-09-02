@@ -15,21 +15,19 @@
 
 #define NR_POINT_LIGHTS 6
 
-
-
 void framebuffer_size_callback(GLFWwindow *w, int width, int height);
 int main();
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *w);
 
-float deltaTime = 0.0f;
-float lastFrame = 0.0f;
-bool firstMouse = true;
-float lastX = 0.0f;
-float lastY = 0.0f;
-Camera camera(glm::vec3(0.0f, 1.5f, 0.0f));
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
+GLboolean firstMouse = true;
+GLfloat lastX = 0.0f;
+GLfloat lastY = 0.0f;
 Physics physicsSimulation;
+GLfloat maxSecPerFrame = 1.0f / 60.0f;
+Camera camera(physicsSimulation, glm::vec3(0.0f, 1.5f, 0.0f));
 
 int main() {
 	glfwInit();
@@ -45,7 +43,6 @@ int main() {
 	//Setting mouse
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(window, mouse_callback);
-	glfwSetScrollCallback(window, scroll_callback);
 	glfwMakeContextCurrent(window);
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -102,9 +99,14 @@ int main() {
 		float currTime = glfwGetTime();
 		deltaTime = currTime - lastFrame;
 		lastFrame = currTime;
-		processInput(window);
 		float time = (float)glfwGetTime();
 
+		// we update the physics simulation. We must pass the deltatime to be used for the update of the physical state of the scene. 
+		//The default value for Bullet is 60 Hz, for lesser deltatime the library interpolates and does not calculate the simulation. 
+		//In this example, we use deltatime from the last rendering: if it is < 1\60 sec, than we use it, otherwise we use the deltatime 
+		//we have set above. we also set the max number of substeps to consider for the simulation (=10)
+		physicsSimulation.dynamicsWorld->stepSimulation((deltaTime < maxSecPerFrame ? deltaTime : maxSecPerFrame), 10);
+		processInput(window);
 		//Shader common setup
 		glm::mat4 view = glm::mat4(1.0f);
 		view = camera.GetViewMatrix();
@@ -173,6 +175,7 @@ int main() {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+	physicsSimulation.Clear();
 	glfwTerminate();
 	return 0;
 }
@@ -196,11 +199,6 @@ void mouse_callback(GLFWwindow * w, double xpos, double ypos) {
 	camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-	camera.ProcessMouseScroll(yoffset);
-}
-
 void processInput(GLFWwindow *w) {
 	if (glfwGetKey(w, GLFW_KEY_ESCAPE)) {
 		glfwSetWindowShouldClose(w, true);
@@ -218,3 +216,4 @@ void processInput(GLFWwindow *w) {
 		camera.ProcessKeyboard(RIGHT, deltaTime);
 	}
 }
+

@@ -4,7 +4,12 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include "Physics.h"
+#include <iostream>
 #include <vector>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
@@ -41,14 +46,20 @@ public:
 	float MovementSpeed;
 	float MouseSensitivity;
 	float Zoom;
+	//Camera's rigidbody
+	btRigidBody* rigidbody;
 
 	// Constructor with vectors
-	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH);
-	// Constructor with scalar values
-	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
-
+	Camera(Physics physicsSimulation, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), 
+		glm::vec3 size = glm::vec3(4.0f, 2.0f, 4.0f),
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f),
+		float yaw = YAW, float pitch = PITCH);
+	
 	// Returns the view matrix calculated using Euler Angles and the LookAt Matrix
 	glm::mat4 GetViewMatrix();
+
+	// Returns the model matrix calculated from the physics engine
+	glm::mat4 GetModelMatrix();
 
 	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 	void ProcessKeyboard(Camera_Movement direction, float deltaTime);
@@ -56,11 +67,8 @@ public:
 	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
 	void ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch = true);
 
-	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-	void ProcessMouseScroll(float yoffset);
-
 private:
-	// Calculates the front vector from the Camera's (updated) Euler Angles
+	// Calculates the front vector from the Camera's (updated) Euler Angles and the position from the physics engine
 	void updateCameraVectors();
 };
 #endif
