@@ -19,6 +19,7 @@ void Mesh::Draw(Shader shader)
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
 	unsigned int reflectiveNr = 1;
+	unsigned int normalNr = 1;
 	for (unsigned int i = 0; i < textures.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		std::string number;
@@ -30,6 +31,8 @@ void Mesh::Draw(Shader shader)
 			number = std::to_string(specularNr++);
 		else if (name == "texture_reflective")
 			number = std::to_string(reflectiveNr++);
+		else if (name == "texture_normals")
+			number = std::to_string(normalNr++);
 		shader.setInt("material." + name, i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
@@ -57,6 +60,7 @@ void Mesh::DrawInstanced(Shader shader, int amount)
 			number = std::to_string(specularNr++);
 		else if (name == "texture_reflective")
 			number = std::to_string(reflectiveNr++);
+
 		shader.setFloat("material." + name + number, i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
@@ -90,6 +94,12 @@ void Mesh::setupMesh()
 	// vertex texture coords
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+	//vertex tangents
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+	//vertex bitangents
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 	glBindVertexArray(0);
 }
 

@@ -3,6 +3,7 @@
 struct Material {
 	sampler2D texture_diffuse;
 	sampler2D texture_specular;
+	sampler2D texture_normals;
 	float shininess;
 	float Ka;
 	float Kd;
@@ -41,6 +42,7 @@ struct SpotLight {
 out vec4 FragColor;
 in vec3 Normal;
 in vec3 FragPos;
+in mat3 TBN;
 in vec2 TexCoords;
 
 uniform vec3 objectColor;
@@ -56,7 +58,9 @@ vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir);
 
 
 void main() {
-	vec3 norm = normalize(Normal);
+	vec3 norm = vec3(texture(material.texture_normals, TexCoords));
+	norm = normalize(norm * 2.0 - 1.0);
+	norm = normalize(TBN * norm);
 	vec3 viewDir = normalize(viewPos - FragPos);
 	vec3 result = CalcDirLight(dirLight, norm, viewDir);
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {

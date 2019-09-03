@@ -82,12 +82,12 @@ int main() {
 		glm::vec3(-1.25f, 2.0f, 1.0f)
 	};
 	glm::vec3 pointLightPositions[] {
-		glm::vec3(1.95f, 2.75f, 2.75f),
-		glm::vec3(1.95f, 2.75f, 4.90f),
-		glm::vec3(1.95f, 2.75f, -4.90f),
-		glm::vec3(1.95f, 2.75f, -2.75f),
-		glm::vec3(-1.95f, 2.75f, -1.0f),
-		glm::vec3(-1.95f, 2.75f, 1.0f)
+		glm::vec3(1.60f, 2.75f, 2.75f),
+		glm::vec3(1.60f, 2.75f, 4.90f),
+		glm::vec3(1.60f, 2.75f, -4.90f),
+		glm::vec3(1.60f, 2.75f, -2.75f),
+		glm::vec3(-1.60f, 2.75f, -1.0f),
+		glm::vec3(-1.60f, 2.75f, 1.0f)
 	};
 	float lightSupportRotations[] {
 		0.f, 0.f, 0.f, 0.f, 135.f, 135.f
@@ -129,7 +129,7 @@ int main() {
 		glm::mat4 view = glm::mat4(1.0f);
 		view = camera.GetViewMatrix();
 		glm::mat4 projection;
-		projection = glm::perspective(camera.Zoom, 800.0f / 600.0f, 0.1f, 100.0f);
+		projection = glm::perspective(camera.Zoom, 1280.0f / 720.0f, 0.1f, 100.0f);
 		shader.use();
 		shader.setMat4Float("view", glm::value_ptr(view));
 		shader.setMat4Float("projection", glm::value_ptr(projection));
@@ -143,8 +143,8 @@ int main() {
 		shaderLight.setMat4Float("projection", glm::value_ptr(projection));
 
 		//lights rendering
-		blinnPhongModel.setLightParameters(glm::vec3(0.15f, 0.15f, 0.15f),
-			glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(0.5f, 0.5f, 0.5f));
+		blinnPhongModel.setLightParameters(glm::vec3(1.0f, 1.0f, 1.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
 		for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 			blinnPhongModel.setPointLight(pointLightPositions[i], i);
 			shaderLight.use();
@@ -155,7 +155,7 @@ int main() {
 			sphereModel.Draw(shaderLight);
 		}
 		//light supports rendering
-		blinnPhongModel.setMaterial(0.6f, 0.6f, 0.0f, 0.2f);
+		blinnPhongModel.setMaterial(0.9f, 0.6f, 0.0f, 0.2f);
 		for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, lightSupportPositions[i]);
@@ -166,7 +166,7 @@ int main() {
 		}
 
 		//room rendering
-		blinnPhongModel.setMaterial(0.6f, 0.6f, 0.1f, 0.2f);
+		blinnPhongModel.setMaterial(0.3f, 0.8f, 0.1f, 0.2f);
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		shader.use();

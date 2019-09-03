@@ -31,7 +31,8 @@ std::vector<Mesh> Model::getMeshes()
 void Model::loadModel(std::string path)
 {
 	Assimp::Importer import;
-	const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs 
+		| aiProcess_CalcTangentSpace);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -78,6 +79,14 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 		vector.y = mesh->mNormals[i].y;
 		vector.z = mesh->mNormals[i].z;
 		vertex.Normal = vector;
+		vector.x = mesh->mTangents[i].x;
+		vector.y = mesh->mTangents[i].y;
+		vector.z = mesh->mTangents[i].z;
+		vertex.Tangent = vector;
+		vector.x = mesh->mBitangents[i].x;
+		vector.y = mesh->mBitangents[i].y;
+		vector.z = mesh->mBitangents[i].z;
+		vertex.Bitangent = vector;
 		//processing texture coordinates
 		if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
 		{
@@ -90,6 +99,7 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 		vertices.push_back(vertex);
 	}
+	
 	// process indices
 	for (unsigned int i = 0; i < mesh->mNumFaces; i++)
 	{
@@ -109,6 +119,9 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 			std::vector<Texture> specularMaps = loadMaterialTextures(material,
 				aiTextureType_SPECULAR, "texture_specular");
 			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+			std::vector<Texture> normalMaps = loadMaterialTextures(material,
+				aiTextureType_HEIGHT, "texture_normals");
+			textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 			std::vector<Texture> reflectiveMaps = loadMaterialTextures(material,
 				aiTextureType_AMBIENT, "texture_reflective");
 			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
@@ -124,6 +137,8 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
+		if (type == aiTextureType_HEIGHT)
+			std::cout << str.C_Str() << std::endl;
 		bool skip = false;
 		for (unsigned int j = 0; j < textures_loaded.size(); j++)
 		{
