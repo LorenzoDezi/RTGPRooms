@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "Shader.h"
+#include "BlinnPhongModel.h"
 #include "Physics.h"
 #include "Skybox.h"
 #include "Camera.h"
@@ -19,9 +20,16 @@ void framebuffer_size_callback(GLFWwindow *w, int width, int height);
 int main();
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
 void processInput(GLFWwindow *w);
+//DEBUG
+void showFrameRate();
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
+
+//DEBUG
+GLuint framesPerSecond = 0;
+double lastTime = 0.0f;
+
 GLboolean firstMouse = true;
 GLfloat lastX = 0.0f;
 GLfloat lastY = 0.0f;
@@ -52,8 +60,9 @@ int main() {
 
 	//Shaders setup
 	Shader shader("Shaders/vertex_phong.glsl", "Shaders/fragment_phong.glsl");
-	Shader shaderLamp("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl");
+	Shader shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl");
 	Shader skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl");
+
 	//Models setup
 	Model roomModel("Assets/rooms2.obj");
 	Model torchModel("Assets/torch2.obj");
@@ -84,6 +93,7 @@ int main() {
 		0.f, 0.f, 0.f, 0.f, 135.f, 135.f
 	};
 	glm::vec3 lightDir(0.0f, -1.0f, 0.0f);
+
 	//Skybox setup
 	std::vector<std::string> faces
 	{
@@ -95,6 +105,7 @@ int main() {
 		"assets/textures/purplenebula_bk.tga"
 	};
 	Skybox skybox(faces);
+
 	//TODO Calculate here normal matrix, on the CPU, because it costs on the vertex shader
 	//TODO Uniform buffer objects for lights
 	glEnable(GL_DEPTH_TEST);
@@ -111,8 +122,10 @@ int main() {
 		//In this example, we use deltatime from the last rendering: if it is < 1\60 sec, than we use it, otherwise we use the deltatime 
 		//we have set above. we also set the max number of substeps to consider for the simulation (=10)
 		physicsSimulation.dynamicsWorld->stepSimulation((deltaTime < maxSecPerFrame ? deltaTime : maxSecPerFrame), 10);
+		
 		processInput(window);
 		//Shader common setup
+		BlinnPhongModel blinnPhongModel(shader);
 		glm::mat4 view = glm::mat4(1.0f);
 		view = camera.GetViewMatrix();
 		glm::mat4 projection;
@@ -121,55 +134,42 @@ int main() {
 		shader.setMat4Float("view", glm::value_ptr(view));
 		shader.setMat4Float("projection", glm::value_ptr(projection));
 		shader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
-		shader.setVec3Float("dirLight.direction", lightDir.x, lightDir.y, lightDir.z);
-		shader.setVec3Float("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-		shader.setVec3Float("dirLight.diffuse", 0.1f, 0.1f, 0.1f);
-		shader.setVec3Float("dirLight.specular", 0.02f, 0.02f, 0.02f);
+		blinnPhongModel.setLightParameters(
+			glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.02f, 0.02f, 0.02f));
+		blinnPhongModel.setDirLight(lightDir);
 
-		shaderLamp.use();
-		shaderLamp.setMat4Float("view", glm::value_ptr(view));
-		shaderLamp.setMat4Float("projection", glm::value_ptr(projection));
+		shaderLight.use();
+		shaderLight.setMat4Float("view", glm::value_ptr(view));
+		shaderLight.setMat4Float("projection", glm::value_ptr(projection));
 
 		//lights rendering
+		blinnPhongModel.setLightParameters(glm::vec3(0.15f, 0.15f, 0.15f),
+			glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(0.5f, 0.5f, 0.5f));
 		for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-			shader.use();
-			std::string refLight = "pointLights[" + std::to_string(i) + "]";
-			//TODO add 0.65 in relative positions
-			shader.setVec3Float(refLight + ".position", pointLightPositions[i].x, 
-				pointLightPositions[i].y, pointLightPositions[i].z);
-			shader.setFloat(refLight + ".constant", 1.0f);
-			shader.setFloat(refLight + ".linear", 0.22f);
-			shader.setFloat(refLight + ".quadratic", 0.20f);
-			shader.setVec3Float(refLight + ".ambient", 0.15f, 0.15f, 0.15f);
-			shader.setVec3Float(refLight + ".diffuse", 0.8f, 0.8f, 0.8f);
-			shader.setVec3Float(refLight + ".specular", 0.1f, 0.1f, 0.1f);
-			shaderLamp.use();
+			blinnPhongModel.setPointLight(pointLightPositions[i], i);
+			shaderLight.use();
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, lightSupportPositions[i] + glm::vec3(0.0f, 0.75f, 0.0f));
 			model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2));
-			shaderLamp.setMat4Float("model", glm::value_ptr(model));
-			sphereModel.Draw(shaderLamp);
+			shaderLight.setMat4Float("model", glm::value_ptr(model));
+			sphereModel.Draw(shaderLight);
 		}
 		//light supports rendering
-		shader.use();
-		shader.setInt("material.diffuse", 0);
-		shader.setInt("material.specular", 1);
-		shader.setFloat("material.shininess", 0.5f);
+		blinnPhongModel.setMaterial(0.6f, 0.6f, 0.0f, 0.2f);
 		for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, lightSupportPositions[i]);
 			model = glm::rotate(model, lightSupportRotations[i], glm::vec3(0.0f, 1.0f, 0.0f));
+			shader.use(); 
 			shader.setMat4Float("model", glm::value_ptr(model));
 			torchModel.Draw(shader);
 		}
 
 		//room rendering
-		shader.use();
-		shader.setInt("material.diffuse", 0);
-		shader.setInt("material.specular", 1);
-		shader.setFloat("material.shininess", 0.5f);
+		blinnPhongModel.setMaterial(0.6f, 0.6f, 0.1f, 0.2f);
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		shader.use();
 		shader.setMat4Float("model", glm::value_ptr(model));
 		roomModel.Draw(shader);
 		
@@ -178,6 +178,8 @@ int main() {
 
 		//Swap double buffer and poll events
 		glfwSwapBuffers(window);
+		//DEBUG
+		showFrameRate();
 		glfwPollEvents();
 	}
 	physicsSimulation.Clear();
@@ -219,6 +221,18 @@ void processInput(GLFWwindow *w) {
 	}
 	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
 		camera.ProcessKeyboard(RIGHT);
+	}
+}
+
+void showFrameRate()
+{
+	double currentTime = glfwGetTime();
+	++framesPerSecond;
+	if (currentTime - lastTime > 1.0f)
+	{
+		lastTime = currentTime;
+		std::cout << "\nCurrent Frames Per Second: " << framesPerSecond;
+		framesPerSecond = 0;
 	}
 }
 

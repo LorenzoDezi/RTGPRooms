@@ -1,9 +1,12 @@
 #version 330 core
 
 struct Material {
-	sampler2D diffuse;
-	sampler2D specular;
+	sampler2D texture_diffuse;
+	sampler2D texture_specular;
 	float shininess;
+	float Ka;
+	float Kd;
+	float Ks;
 };
 
 struct DirLight {
@@ -65,18 +68,16 @@ void main() {
 vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 	vec3 lightDir = normalize(-light.direction);
 	//Ambient calculation
-	vec3 ambient = vec3(texture(material.diffuse, TexCoords)) * light.ambient;
+	vec3 ambient = vec3(texture(material.texture_diffuse, TexCoords)) * light.ambient * material.Ka;
 	//diffuse calculation
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = (diff * vec3(texture(material.diffuse, TexCoords))) * light.diffuse;
+	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, TexCoords))) * light.diffuse * material.Kd;
 	//specular calculation
-	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+	vec3 halfwayDir = normalize(lightDir + viewDir);	
+	float spec = pow(max(dot(viewDir, halfwayDir), 0.0), material.shininess);
+	vec3 specular = light.specular * spec * vec3(texture(material.texture_specular, TexCoords)) * material.Ks;
 	//directional light contribution
-	//DEBUG
 	return specular + diffuse + ambient;
-	//return diffuse + ambient;
 }
 
 vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
@@ -84,14 +85,16 @@ vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 	//Ambient calculation
-	vec3 ambient = vec3(texture(material.diffuse, TexCoords)) * light.ambient * attenuation;
+	vec3 ambient = vec3(texture(material.texture_diffuse, TexCoords)) * light.ambient * attenuation * material.Ka;
 	//diffuse calculation
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = (diff * vec3(texture(material.diffuse, TexCoords))) * light.diffuse * attenuation;
+	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, TexCoords))) * light.diffuse * attenuation * material.Kd;
 	//specular calculation
 	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords)) * attenuation;
+	//The specular map is saved in grayscale, but without this its value will be read as GL_RED
+	vec3 specularTexture = vec3(texture(material.texture_specular, TexCoords));
+	vec3 specular = light.specular * spec * vec3(specularTexture.r, specularTexture.r, specularTexture.r) * attenuation * material.Ks;
 	//point light contribution
 	return specular + diffuse + ambient;
 }

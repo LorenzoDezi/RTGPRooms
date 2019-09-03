@@ -30,7 +30,7 @@ void Mesh::Draw(Shader shader)
 			number = std::to_string(specularNr++);
 		else if (name == "texture_reflective")
 			number = std::to_string(reflectiveNr++);
-		shader.setFloat("material." + name + number, i);
+		shader.setInt("material." + name, i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);
