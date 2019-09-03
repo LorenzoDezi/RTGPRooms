@@ -14,8 +14,8 @@ void BlinnPhongModel::setPointLight(glm::vec3 position, int i)
 	lightingShader.setVec3Float(refLight + ".position", position.x,
 		position.y, position.z);
 	lightingShader.setFloat(refLight + ".constant", 1.0f);
-	lightingShader.setFloat(refLight + ".linear", 0.5f);
-	lightingShader.setFloat(refLight + ".quadratic", 1.4f);
+	lightingShader.setFloat(refLight + ".linear", 0.7f);
+	lightingShader.setFloat(refLight + ".quadratic", 1.8f);
 	lightingShader.setVec3Float(refLight + ".ambient", ambient.x, ambient.y, ambient.z);
 	lightingShader.setVec3Float(refLight + ".diffuse", diffuse.x, diffuse.y, diffuse.z);
 	lightingShader.setVec3Float(refLight + ".specular", specular.x, specular.y, specular.z);

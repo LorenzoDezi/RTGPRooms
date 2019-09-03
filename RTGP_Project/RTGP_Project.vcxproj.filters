@@ -88,5 +88,11 @@
     <None Include="Shaders\fragment_skybox.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\vertex_hdr.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_hdr.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -39,9 +39,11 @@
     <ClInclude Include="Physics.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\fragment_hdr.glsl" />
     <None Include="Shaders\fragment_lamp.glsl" />
     <None Include="Shaders\fragment_phong.glsl" />
     <None Include="Shaders\fragment_skybox.glsl" />
+    <None Include="Shaders\vertex_hdr.glsl" />
     <None Include="Shaders\vertex_lamp.glsl" />
     <None Include="Shaders\vertex_phong.glsl" />
     <None Include="Shaders\vertex_skybox.glsl" />

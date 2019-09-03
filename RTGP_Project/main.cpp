@@ -15,11 +15,14 @@
 #include "stb_image/stb_image.h"
 
 #define NR_POINT_LIGHTS 6
+#define SCR_WIDTH 1280.0f
+#define SCR_HEIGHT 720.0f
 
 void framebuffer_size_callback(GLFWwindow *w, int width, int height);
 int main();
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
 void processInput(GLFWwindow *w);
+void renderHDRQuad();
 //DEBUG
 void showFrameRate();
 
@@ -29,6 +32,7 @@ GLfloat lastFrame = 0.0f;
 //DEBUG
 GLuint framesPerSecond = 0;
 double lastTime = 0.0f;
+GLfloat exposure = 1.0f;
 
 GLboolean firstMouse = true;
 GLfloat lastX = 0.0f;
@@ -42,7 +46,7 @@ int main() {
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	GLFWwindow *window = glfwCreateWindow(1280, 720, "RTGP_Project", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "RTGP_Project", NULL, NULL);
 	if (window == NULL) {
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
@@ -55,11 +59,12 @@ int main() {
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
 		std::cout << "Failed to initialize GLAD" << std::endl;
 	}
-	glViewport(0, 0, 1280, 720);
+	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	//Shaders setup
 	Shader shader("Shaders/vertex_phong.glsl", "Shaders/fragment_phong.glsl");
+	Shader hdrShader("Shaders/vertex_hdr.glsl", "Shaders/fragment_hdr.glsl");
 	Shader shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl");
 	Shader skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl");
 
@@ -109,6 +114,30 @@ int main() {
 	//TODO Calculate here normal matrix, on the CPU, because it costs on the vertex shader
 	//TODO Uniform buffer objects for lights
 	glEnable(GL_DEPTH_TEST);
+
+	// configure floating point framebuffer to store hdr values
+	unsigned int hdrFBO;
+	glGenFramebuffers(1, &hdrFBO);
+	// create floating point color buffer 
+	unsigned int colorBuffer;
+	glGenTextures(1, &colorBuffer);
+	glBindTexture(GL_TEXTURE_2D, colorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// create depth buffer (renderbuffer) to perform depth and stencil test
+	unsigned int rboDepth;
+	glGenRenderbuffers(1, &rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+	// attach buffers
+	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//frame calc
@@ -122,8 +151,10 @@ int main() {
 		//In this example, we use deltatime from the last rendering: if it is < 1\60 sec, than we use it, otherwise we use the deltatime 
 		//we have set above. we also set the max number of substeps to consider for the simulation (=10)
 		physicsSimulation.dynamicsWorld->stepSimulation((deltaTime < maxSecPerFrame ? deltaTime : maxSecPerFrame), 10);
-		
 		processInput(window);
+		//Rendering into the floating point framebuffer for hdr
+		glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//Shader common setup
 		BlinnPhongModel blinnPhongModel(shader);
 		glm::mat4 view = glm::mat4(1.0f);
@@ -137,14 +168,13 @@ int main() {
 		blinnPhongModel.setLightParameters(
 			glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.02f, 0.02f, 0.02f));
 		blinnPhongModel.setDirLight(lightDir);
-
+		
+		//lights rendering
 		shaderLight.use();
 		shaderLight.setMat4Float("view", glm::value_ptr(view));
 		shaderLight.setMat4Float("projection", glm::value_ptr(projection));
-
-		//lights rendering
-		blinnPhongModel.setLightParameters(glm::vec3(1.0f, 1.0f, 1.0f),
-			glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+		blinnPhongModel.setLightParameters(glm::vec3(3.0f, 3.0f, 3.0f),
+			glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(3.0f, 3.0f, 3.0f));
 		for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 			blinnPhongModel.setPointLight(pointLightPositions[i], i);
 			shaderLight.use();
@@ -155,7 +185,7 @@ int main() {
 			sphereModel.Draw(shaderLight);
 		}
 		//light supports rendering
-		blinnPhongModel.setMaterial(0.9f, 0.6f, 0.0f, 0.2f);
+		blinnPhongModel.setMaterial(0.2f, 0.4f, 0.0f, 0.2f);
 		for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, lightSupportPositions[i]);
@@ -175,7 +205,17 @@ int main() {
 		
 		//skybox rendering
 		skybox.Draw(skyboxShader, view, projection);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+		// 2. now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
+		// --------------------------------------------------------------------------------------------------------------------------
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		hdrShader.use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		//hdrShader.setInt("hdr", hdr);
+		hdrShader.setFloat("exposure", exposure);
+		renderHDRQuad();
 		//Swap double buffer and poll events
 		glfwSwapBuffers(window);
 		//DEBUG
@@ -222,6 +262,35 @@ void processInput(GLFWwindow *w) {
 	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
 		camera.ProcessKeyboard(RIGHT);
 	}
+}
+
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderHDRQuad()
+{
+	if (quadVAO == 0)
+	{
+		float quadVertices[] = {
+			// positions        // texture Coords
+			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+		};
+		// setup plane VAO
+		glGenVertexArrays(1, &quadVAO);
+		glGenBuffers(1, &quadVBO);
+		glBindVertexArray(quadVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	}
+	glBindVertexArray(quadVAO);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	glBindVertexArray(0);
 }
 
 void showFrameRate()
