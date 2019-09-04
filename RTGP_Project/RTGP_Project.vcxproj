@@ -26,6 +26,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="CorridorScene.cpp" />
+    <ClCompile Include="RenderQuad.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
   </ItemGroup>
@@ -39,6 +40,7 @@
     <ClInclude Include="LightingModel.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="CorridorScene.h" />
+    <ClInclude Include="RenderQuad.h" />
     <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>

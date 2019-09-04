@@ -7,6 +7,7 @@
 #include "CorridorScene.h"
 #include "BlinnPhongModel.h"
 #include "Physics.h"
+#include "RenderQuad.h"
 #include "Skybox.h"
 #include "Camera.h"
 #include "Model.h"
@@ -23,9 +24,10 @@ void framebuffer_size_callback(GLFWwindow *w, int width, int height);
 int main();
 void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffer[]);
 void generateBlurPingPongBuffers(GLuint pingpongFBO[], GLuint pingpongBuffer[]);
+GLuint getBlurredBuffer(Shader &shaderBlur, GLuint &colorBuffer, GLuint pingpongFBO[], 
+	GLuint pingpongBuffer[], RenderQuad& quad);
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
 void processInput(GLFWwindow *w);
-void renderHDRQuad(GLuint &quadVAO, GLuint &quadVBO);
 //DEBUG
 void showFrameRate();
 
@@ -83,9 +85,8 @@ int main() {
 	generateColorBuffers(hdrFBO, colorBuffers);
 	GLuint pingpongFBO[2], pingpongBuffer[2];
 	generateBlurPingPongBuffers(pingpongFBO, pingpongBuffer);
-	GLuint quadVAO = 0, quadVBO;
-
-
+	RenderQuad hdrQuad;
+	
 	CorridorScene scene(physicsSimulation);
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -103,34 +104,26 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		scene.Draw(camera);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//TODO REFACTOR: blur
-		bool horizontal = true, first_iteration = true;
-		int amount = 10;
-		shaderBlur.use();
-		for (unsigned int i = 0; i < amount; i++)
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-			shaderBlur.setInt("horizontal", horizontal);
-			glBindTexture(
-				GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongBuffer[!horizontal]
-			);
-			renderHDRQuad(quadVAO, quadVBO);
-			horizontal = !horizontal;
-			if (first_iteration)
-				first_iteration = false;
-		}
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+		
 		//Rendering floating point color buffer to 2D quad
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		hdrShader.use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, pingpongBuffer[!horizontal]);
+		if (scene.hasBloom()) {
+			GLuint blurredBuffer = getBlurredBuffer(shaderBlur, colorBuffers[1],
+				pingpongFBO, pingpongBuffer, hdrQuad);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, blurredBuffer);
+			hdrShader.setBool("hasBloom", true);
+		}
+		else {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+			hdrShader.setBool("hasBloom", false);
+		}
 		hdrShader.setFloat("exposure", exposure);
-		renderHDRQuad(quadVAO, quadVBO);
+		hdrQuad.Draw();
 		//Swap double buffer and poll events
 		glfwSwapBuffers(window);
 		//DEBUG
@@ -199,8 +192,31 @@ void generateBlurPingPongBuffers(GLuint pingpongFBO[], GLuint pingpongBuffer[])
 	}
 }
 
+GLuint getBlurredBuffer(Shader& shaderBlur, GLuint& colorBuffer, GLuint pingpongFBO[], GLuint pingpongBuffer[], 
+	RenderQuad& quad)
+{
+	bool horizontal = true, first_iteration = true;
+	int amount = 10;
+	shaderBlur.use();
+	for (unsigned int i = 0; i < amount; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+		shaderBlur.setInt("horizontal", horizontal);
+		glBindTexture(
+			GL_TEXTURE_2D, first_iteration ? colorBuffer : pingpongBuffer[!horizontal]
+		);
+		quad.Draw();
+		horizontal = !horizontal;
+		if (first_iteration)
+			first_iteration = false;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return pingpongBuffer[!horizontal];
+}
+
 void framebuffer_size_callback(GLFWwindow *w, int width, int height) {
 	glViewport(0, 0, width, height);
+	//TODO: windows resize, change render quad and blur framebuffers size
 }
 
 void mouse_callback(GLFWwindow * w, double xpos, double ypos) {
@@ -236,32 +252,6 @@ void processInput(GLFWwindow *w) {
 	}
 }
 
-void renderHDRQuad(GLuint &quadVAO, GLuint &quadVBO)
-{
-	if (quadVAO == 0)
-	{
-		float quadVertices[] = {
-			// positions        // texture Coords
-			-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-			1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-			1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-		};
-		// setup plane VAO
-		glGenVertexArrays(1, &quadVAO);
-		glGenBuffers(1, &quadVBO);
-		glBindVertexArray(quadVAO);
-		glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	}
-	glBindVertexArray(quadVAO);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	glBindVertexArray(0);
-}
 
 void showFrameRate()
 {

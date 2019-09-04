@@ -15,6 +15,7 @@ class CorridorScene : Scene
 public:
 	CorridorScene(Physics simulation);
 	void Draw(Camera camera);
+	bool hasBloom();
 	~CorridorScene();
 
 private:

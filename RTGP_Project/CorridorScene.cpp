@@ -89,6 +89,11 @@ void CorridorScene::Draw(Camera camera)
 	skybox.Draw(skyboxShader, view, projection);
 }
 
+bool CorridorScene::hasBloom()
+{
+	return true;
+}
+
 
 CorridorScene::~CorridorScene()
 {
