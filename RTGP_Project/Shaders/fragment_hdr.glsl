@@ -3,13 +3,16 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
-uniform float exposure;
 uniform sampler2D hdrBuffer;
+uniform sampler2D bloomBlur;
+uniform float exposure;
 
 void main()
 {
 	const float gamma = 1.0;
 	vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
+	vec3 bloomColor = texture(bloomBlur, TexCoords).rgb;
+	hdrColor += bloomColor; // additive blending
 	// tone mapping
 	vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
 	// gamma correction 

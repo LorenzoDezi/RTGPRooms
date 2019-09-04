@@ -21,9 +21,11 @@
 
 void framebuffer_size_callback(GLFWwindow *w, int width, int height);
 int main();
+void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffer[]);
+void generateBlurPingPongBuffers(GLuint pingpongFBO[], GLuint pingpongBuffer[]);
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
 void processInput(GLFWwindow *w);
-void renderHDRQuad();
+void renderHDRQuad(GLuint &quadVAO, GLuint &quadVBO);
 //DEBUG
 void showFrameRate();
 
@@ -66,30 +68,24 @@ int main() {
 	//TODO Calculate here normal matrix, on the CPU, because it costs on the vertex shader
 	//TODO Uniform buffer objects for lights
 	glEnable(GL_DEPTH_TEST);
-	//hdr shader
+
+	//hdr and bloom shaders setup
 	Shader hdrShader("Shaders/vertex_hdr.glsl", "Shaders/fragment_hdr.glsl");
-	// configure floating point framebuffer to store hdr values
+	hdrShader.use();
+	hdrShader.setInt("hdrBuffer", 0);
+	hdrShader.setInt("bloomBlur", 1);
+	Shader shaderBlur("Shaders/vertex_hdr.glsl", "Shaders/fragment_blur.glsl");
+	shaderBlur.use();
+	shaderBlur.setInt("image", 0);
+	// generating floating point framebuffers to store hdr values and brights colors (Bloom)
 	GLuint hdrFBO;
-	glGenFramebuffers(1, &hdrFBO);
-	// create floating point color buffer 
-	unsigned int colorBuffer;
-	glGenTextures(1, &colorBuffer);
-	glBindTexture(GL_TEXTURE_2D, colorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// create depth buffer (renderbuffer) to perform depth and stencil test
-	unsigned int rboDepth;
-	glGenRenderbuffers(1, &rboDepth);
-	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-	// attach buffers
-	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "Framebuffer not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	GLuint colorBuffers[2];
+	generateColorBuffers(hdrFBO, colorBuffers);
+	GLuint pingpongFBO[2], pingpongBuffer[2];
+	generateBlurPingPongBuffers(pingpongFBO, pingpongBuffer);
+	GLuint quadVAO = 0, quadVBO;
+
+
 	CorridorScene scene(physicsSimulation);
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -99,10 +95,7 @@ int main() {
 		lastFrame = currTime;
 		float time = (float)glfwGetTime();
 
-		// we update the physics simulation. We must pass the deltatime to be used for the update of the physical state of the scene. 
-		//The default value for Bullet is 60 Hz, for lesser deltatime the library interpolates and does not calculate the simulation. 
-		//In this example, we use deltatime from the last rendering: if it is < 1\60 sec, than we use it, otherwise we use the deltatime 
-		//we have set above. we also set the max number of substeps to consider for the simulation (=10)
+		//Updating physics simulation
 		physicsSimulation.dynamicsWorld->stepSimulation((deltaTime < maxSecPerFrame ? deltaTime : maxSecPerFrame), 10);
 		processInput(window);
 		//Rendering into the floating point framebuffer for hdr
@@ -110,13 +103,34 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		scene.Draw(camera);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		//TODO REFACTOR: blur
+		bool horizontal = true, first_iteration = true;
+		int amount = 10;
+		shaderBlur.use();
+		for (unsigned int i = 0; i < amount; i++)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+			shaderBlur.setInt("horizontal", horizontal);
+			glBindTexture(
+				GL_TEXTURE_2D, first_iteration ? colorBuffers[1] : pingpongBuffer[!horizontal]
+			);
+			renderHDRQuad(quadVAO, quadVBO);
+			horizontal = !horizontal;
+			if (first_iteration)
+				first_iteration = false;
+		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		//Rendering floating point color buffer to 2D quad
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		hdrShader.use();
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, colorBuffer);
+		glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, pingpongBuffer[!horizontal]);
 		hdrShader.setFloat("exposure", exposure);
-		renderHDRQuad();
+		renderHDRQuad(quadVAO, quadVBO);
 		//Swap double buffer and poll events
 		glfwSwapBuffers(window);
 		//DEBUG
@@ -126,6 +140,63 @@ int main() {
 	physicsSimulation.Clear();
 	glfwTerminate();
 	return 0;
+}
+
+void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffers[])
+{
+	glGenFramebuffers(1, &hdrFBO);
+	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+	// create 2 floating point color buffers (1 for normal rendering, other for brightness treshold values)
+	glGenTextures(2, colorBuffers);
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// attach texture to framebuffer
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBuffers[i], 0);
+	}
+	// create and attach depth buffer (renderbuffer)
+	unsigned int rboDepth;
+	glGenRenderbuffers(1, &rboDepth);
+	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+	// tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	//Now the frame buffer will render to those two attachments
+	glDrawBuffers(2, attachments);
+	// finally check if framebuffer is complete
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		std::cout << "Framebuffer not complete!" << std::endl;
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void generateBlurPingPongBuffers(GLuint pingpongFBO[], GLuint pingpongBuffer[])
+{
+	glGenFramebuffers(2, pingpongFBO);
+	glGenTextures(2, pingpongBuffer);
+	for (unsigned int i = 0; i < 2; i++)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
+		glBindTexture(GL_TEXTURE_2D, pingpongBuffer[i]);
+		glTexImage2D(
+			GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL
+		);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, pingpongBuffer[i], 0
+		);
+		// also check if framebuffers are complete (no need for depth buffer)
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			std::cout << "Framebuffer not complete!" << std::endl;
+	}
 }
 
 void framebuffer_size_callback(GLFWwindow *w, int width, int height) {
@@ -165,9 +236,7 @@ void processInput(GLFWwindow *w) {
 	}
 }
 
-unsigned int quadVAO = 0;
-unsigned int quadVBO;
-void renderHDRQuad()
+void renderHDRQuad(GLuint &quadVAO, GLuint &quadVBO)
 {
 	if (quadVAO == 0)
 	{

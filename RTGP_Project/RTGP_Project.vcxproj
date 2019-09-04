@@ -42,6 +42,7 @@
     <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\fragment_blur.glsl" />
     <None Include="Shaders\fragment_hdr.glsl" />
     <None Include="Shaders\fragment_lamp.glsl" />
     <None Include="Shaders\fragment_phong.glsl" />
