@@ -1,6 +1,6 @@
 #include "Skybox.h"
 
-Skybox::Skybox(std::vector<std::string> faces)
+Skybox::Skybox(std::string faces[])
 {
 	//Skybox loading
 	float skyboxVertices[] = {
@@ -50,7 +50,7 @@ Skybox::Skybox(std::vector<std::string> faces)
 	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
 	int width, height, nrChannels;
-	for (unsigned int i = 0; i < faces.size(); i++)
+	for (unsigned int i = 0; i < 6; i++)
 	{
 		unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
 		if (data)

@@ -25,6 +25,7 @@
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Physics.cpp" />
+    <ClCompile Include="CorridorScene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
   </ItemGroup>
@@ -37,6 +38,8 @@
     <ClInclude Include="include\Skybox.h" />
     <ClInclude Include="LightingModel.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="CorridorScene.h" />
+    <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment_hdr.glsl" />

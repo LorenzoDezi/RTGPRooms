@@ -10,7 +10,7 @@ void main()
 {
 	const float gamma = 1.0;
 	vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
-	// reinhard tone mapping
+	// tone mapping
 	vec3 result = vec3(1.0) - exp(-hdrColor * exposure);
 	// gamma correction 
 	result = pow(result, vec3(1.0 / gamma));
