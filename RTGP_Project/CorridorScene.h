@@ -14,7 +14,7 @@ class CorridorScene : Scene
 {
 public:
 	CorridorScene(Physics simulation);
-	void Draw(Camera camera);
+	void Draw(Camera camera, float time);
 	bool hasBloom();
 	~CorridorScene();
 
@@ -22,11 +22,13 @@ private:
 	//Shaders
 	Shader shader;
 	Shader shaderLight;
+	Shader doorShader;
 	Shader skyboxShader;
 	BlinnPhongModel model;
 
 	//Models
 	Model roomModel;
+	Model doorModel;
 	Model torchModel;
 	Model sphereModel;
 

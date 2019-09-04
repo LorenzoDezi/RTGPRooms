@@ -94,7 +94,6 @@ int main() {
 		float currTime = glfwGetTime();
 		deltaTime = currTime - lastFrame;
 		lastFrame = currTime;
-		float time = (float)glfwGetTime();
 
 		//Updating physics simulation
 		physicsSimulation.dynamicsWorld->stepSimulation((deltaTime < maxSecPerFrame ? deltaTime : maxSecPerFrame), 10);
@@ -102,12 +101,11 @@ int main() {
 		//Rendering into the floating point framebuffer for hdr
 		glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		scene.Draw(camera);
+		scene.Draw(camera, currTime);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
 		//Rendering floating point color buffer to 2D quad
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		hdrShader.use();
 		if (scene.hasBloom()) {
 			GLuint blurredBuffer = getBlurredBuffer(shaderBlur, colorBuffers[1],
 				pingpongFBO, pingpongBuffer, hdrQuad);
@@ -115,13 +113,13 @@ int main() {
 			glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D, blurredBuffer);
-			hdrShader.setBool("hasBloom", true);
 		}
 		else {
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-			hdrShader.setBool("hasBloom", false);
 		}
+		hdrShader.use();
+		hdrShader.setBool("hasBloom", scene.hasBloom());
 		hdrShader.setFloat("exposure", exposure);
 		hdrQuad.Draw();
 		//Swap double buffer and poll events

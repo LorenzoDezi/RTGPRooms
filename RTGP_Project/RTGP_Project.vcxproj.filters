@@ -112,5 +112,11 @@
     <None Include="Shaders\fragment_blur.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\vertex_door.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_door.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
