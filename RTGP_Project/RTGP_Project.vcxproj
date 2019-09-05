@@ -25,6 +25,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="NaturalScene.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="CorridorScene.cpp" />
     <ClCompile Include="RenderQuad.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="include\Shader.h" />
     <ClInclude Include="include\Skybox.h" />
     <ClInclude Include="LightingModel.h" />
+    <ClInclude Include="NaturalScene.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="CorridorScene.h" />
     <ClInclude Include="RenderQuad.h" />

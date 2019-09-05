@@ -11,13 +11,15 @@
 
 #define CORRIDOR_POINT_LIGHTS 6
 
-class CorridorScene : public Scene
+//TODO: Implements the class - now it's a copy of corridor scene
+
+class NaturalScene : public Scene
 {
 public:
-	CorridorScene(Physics &simulation, Model &roomModel, std::vector<Door> doors);
+	NaturalScene(Physics &simulation, Model &roomModel, std::vector<Door> doors);
 	void Draw(Camera &camera, float time);
 	bool hasBloom();
-	~CorridorScene();
+	~NaturalScene();
 
 private:
 	//Shaders

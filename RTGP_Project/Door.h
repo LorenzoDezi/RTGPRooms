@@ -11,7 +11,7 @@ enum sceneType { CORRIDOR, NATURAL, TOON, ABSTRACT };
 class Door
 {
 public:
-	Door(sceneType type, glm::vec3 position, Physics &physicsSimulation);
+	Door(sceneType type, glm::vec3 position, glm::vec3 collisionPos, Physics &physicsSimulation);
 	void Draw(Shader shader);
 	sceneType getSceneType();
 

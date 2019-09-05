@@ -5,6 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "Shader.h"
 #include "CorridorScene.h"
+#include "NaturalScene.h"
 #include "BlinnPhongModel.h"
 #include "Physics.h"
 #include "RenderQuad.h"
@@ -13,6 +14,8 @@
 #include "Door.h"
 #include "Model.h"
 #include <iostream>
+#include <unordered_map>
+#include <memory>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
@@ -30,7 +33,7 @@ GLuint getBlurredBuffer(Shader &shaderBlur, GLuint &colorBuffer, GLuint pingpong
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
 void processInput(GLFWwindow *w);
 std::vector<Door> getDoors();
-//DEBUG
+
 void showFrameRate();
 
 GLfloat deltaTime = 0.0f;
@@ -47,6 +50,8 @@ GLfloat lastY = 0.0f;
 Physics physicsSimulation;
 GLfloat maxSecPerFrame = 1.0f / 60.0f;
 Camera camera(physicsSimulation, glm::vec3(0.0f, 15.0f, 0.0f));
+std::unordered_map<sceneType, std::unique_ptr<Scene>> sceneMap;
+
 
 int main() {
 	glfwInit();
@@ -88,9 +93,19 @@ int main() {
 	GLuint pingpongFBO[2], pingpongBuffer[2];
 	generateBlurPingPongBuffers(pingpongFBO, pingpongBuffer);
 	RenderQuad hdrQuad;
+
+	//Scene setup
 	Model roomModel("Assets/rooms2.obj");
+	//Physics setup
+	physicsSimulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(),
+		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 	std::vector<Door> doors = getDoors();
-	CorridorScene scene(physicsSimulation, roomModel, doors);
+	sceneType currentSceneType = CORRIDOR;
+	sceneMap[CORRIDOR] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
+	sceneMap[NATURAL] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
+	//TODO: Implement toon and abstract classes
+	sceneMap[TOON] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
+	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
 	
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -105,27 +120,30 @@ int main() {
 		//DEBUG RAYTRACE
 		btCollisionWorld::ClosestRayResultCallback rayCallback(
 			btVector3(camera.Position.x, camera.Position.y, camera.Position.z),
-			btVector3(camera.Front.x, camera.Front.y, camera.Front.z) * 2.0f
+			btVector3(camera.Front.x, camera.Front.y, camera.Front.z)
 		);
 		rayCallback.m_collisionFilterMask = btBroadphaseProxy::KinematicFilter;
 		physicsSimulation.dynamicsWorld->rayTest(
 			btVector3(camera.Position.x, camera.Position.y, camera.Position.z),
-			btVector3(camera.Front.x, camera.Front.y, camera.Front.z) * 2.0f,
+			btVector3(camera.Front.x, camera.Front.y, camera.Front.z),
 			rayCallback);
 		if (rayCallback.hasHit()) {
-			std::cout << "Hit!" << std::endl;
+			sceneType *val = static_cast<sceneType *>(rayCallback.m_collisionObject->getUserPointer());
+			currentSceneType = *val;
+			//DEBUG
+			std::cout << "Crossed -> " << *val << std::endl;
 		}
 
 		processInput(window);
 		//Rendering into the floating point framebuffer for hdr
 		glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		scene.Draw(camera, currTime);
+		sceneMap[currentSceneType]->Draw(camera, currTime);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
 		//Rendering floating point color buffer to 2D quad
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		if (scene.hasBloom()) {
+		if (sceneMap[currentSceneType]->hasBloom()) {
 			GLuint blurredBuffer = getBlurredBuffer(shaderBlur, colorBuffers[1],
 				pingpongFBO, pingpongBuffer, hdrQuad);
 			glActiveTexture(GL_TEXTURE0);
@@ -138,13 +156,13 @@ int main() {
 			glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
 		}
 		hdrShader.use();
-		hdrShader.setBool("hasBloom", scene.hasBloom());
+		hdrShader.setBool("hasBloom", sceneMap[currentSceneType]->hasBloom());
 		hdrShader.setFloat("exposure", exposure);
 		hdrQuad.Draw();
 		//Swap double buffer and poll events
 		glfwSwapBuffers(window);
 		//DEBUG
-		showFrameRate();
+		//showFrameRate();
 		glfwPollEvents();
 	}
 	physicsSimulation.Clear();
@@ -267,17 +285,21 @@ void processInput(GLFWwindow *w) {
 	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
 		camera.ProcessKeyboard(RIGHT);
 	}
+	//DEBUG
+	if (glfwGetKey(w, GLFW_KEY_SPACE) == GLFW_PRESS) {
+		std::cout << camera.Position.x << "-" << camera.Position.y << "-" << camera.Position.z << std::endl;
+	}
 }
 
 std::vector<Door> getDoors()
 {
 	return std::vector<Door> {
-		Door(CORRIDOR, glm::vec3(0.01f, 0.0f, 0.0f), physicsSimulation),
-		Door(CORRIDOR, glm::vec3(2.94f, 0.0, 3.83f), physicsSimulation),
-		Door(TOON, glm::vec3(3.08f, 0.0f, 3.83f), physicsSimulation),
-		Door(CORRIDOR, glm::vec3(2.94f, 0.0, -3.83f), physicsSimulation),
-		Door(ABSTRACT, glm::vec3(3.08f, 0.0f, -3.83f), physicsSimulation),
-		Door(NATURAL, glm::vec3(-0.15f, 0.0f, 0.0f), physicsSimulation)
+		Door(CORRIDOR, glm::vec3(0.01f, 0.0f, 0.0f), glm::vec3(-1.38f, 1.5f, -0.09f),  physicsSimulation),
+		Door(CORRIDOR, glm::vec3(2.94f, 0.0, 3.83f), glm::vec3(1.32f, 1.5f, 3.96f), physicsSimulation),
+		Door(TOON, glm::vec3(3.08f, 0.0f, 3.83f), glm::vec3(1.52f, 1.5f, 3.96f), physicsSimulation),
+		Door(CORRIDOR, glm::vec3(2.94f, 0.0, -3.83f), glm::vec3(1.32f, 1.5f, -3.72f), physicsSimulation),
+		Door(ABSTRACT, glm::vec3(3.08f, 0.0f, -3.83f), glm::vec3(1.52f, 1.5f, -3.72f), physicsSimulation),
+		Door(NATURAL, glm::vec3(-0.15f, 0.0f, 0.0f), glm::vec3(-1.58f, 1.5f, -0.09f), physicsSimulation)
 	};
 }
 

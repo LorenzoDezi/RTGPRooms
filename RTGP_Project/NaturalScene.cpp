@@ -1,7 +1,6 @@
-#include "CorridorScene.h"
+#include "NaturalScene.h"
 
-//TODO: toggle simulation
-CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<Door> doors) :
+NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<Door> doors) :
 	shader("Shaders/vertex_phong.glsl", "Shaders/fragment_phong.glsl"),
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
@@ -13,30 +12,32 @@ CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<
 	"assets/textures/purplenebula_up.tga",
 	"assets/textures/purplenebula_dn.tga",
 	"assets/textures/purplenebula_ft.tga",
-	"assets/textures/purplenebula_bk.tga"}, 
+	"assets/textures/purplenebula_bk.tga" },
 	skybox(faces),
-	lightSupportRotations { 0.f, 0.f, 0.f, 0.f, 135.f, 135.f },
+	lightSupportRotations{ 0.f, 0.f, 0.f, 0.f, 135.f, 135.f },
 	lightSupportPositions{
-		glm::vec3(1.25f, 2.0f, 2.75f),
-		glm::vec3(1.25f, 2.0f, 4.90f),
-		glm::vec3(1.25f, 2.0f, -4.90f),
-		glm::vec3(1.25f, 2.0f, -2.75f),
-		glm::vec3(-1.25f, 2.0f, -1.0f),
-		glm::vec3(-1.25f, 2.0f, 1.0f) },
+	glm::vec3(1.25f, 2.0f, 2.75f),
+	glm::vec3(1.25f, 2.0f, 4.90f),
+	glm::vec3(1.25f, 2.0f, -4.90f),
+	glm::vec3(1.25f, 2.0f, -2.75f),
+	glm::vec3(-1.25f, 2.0f, -1.0f),
+	glm::vec3(-1.25f, 2.0f, 1.0f) },
 	pointLightPositions{
-		glm::vec3(1.60f, 2.75f, 2.75f),
-		glm::vec3(1.60f, 2.75f, 4.90f),
-		glm::vec3(1.60f, 2.75f, -4.90f),
-		glm::vec3(1.60f, 2.75f, -2.75f),
-		glm::vec3(-1.60f, 2.75f, -1.0f),
-		glm::vec3(-1.60f, 2.75f, 1.0f) },
-	doors(doors), 
+	glm::vec3(1.60f, 2.75f, 2.75f),
+	glm::vec3(1.60f, 2.75f, 4.90f),
+	glm::vec3(1.60f, 2.75f, -4.90f),
+	glm::vec3(1.60f, 2.75f, -2.75f),
+	glm::vec3(-1.60f, 2.75f, -1.0f),
+	glm::vec3(-1.60f, 2.75f, 1.0f) },
+	doors(doors),
 	lightDir(0.0f, -1.0f, 0.0f), model(shader) {
 
-	
+	//Physics setup
+	simulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(),
+		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 }
 
-void CorridorScene::Draw(Camera &camera, float time)
+void NaturalScene::Draw(Camera &camera, float time)
 {
 	glm::mat4 view = glm::mat4(1.0f);
 	view = camera.GetViewMatrix();
@@ -77,6 +78,10 @@ void CorridorScene::Draw(Camera &camera, float time)
 	}
 
 	//Doors rendering
+	//TODO: move positions in the constructor
+	//and create plane rigidbody (trigger) for each
+	//and assign the proper callback (change of render)
+
 	doorShader.use();
 	doorShader.setMat4Float("view", glm::value_ptr(view));
 	doorShader.setMat4Float("projection", glm::value_ptr(projection));
@@ -84,7 +89,7 @@ void CorridorScene::Draw(Camera &camera, float time)
 	for (auto& door : doors) {
 		door.Draw(doorShader);
 	}
-	
+
 	//room rendering
 	model.setMaterial(0.3f, 0.8f, 0.1f, 0.2f);
 	glm::mat4 model = glm::mat4(1.0f);
@@ -97,12 +102,12 @@ void CorridorScene::Draw(Camera &camera, float time)
 	skybox.Draw(skyboxShader, view, projection);
 }
 
-bool CorridorScene::hasBloom()
+bool NaturalScene::hasBloom()
 {
 	return true;
 }
 
 
-CorridorScene::~CorridorScene()
+NaturalScene::~NaturalScene()
 {
 }
