@@ -1,6 +1,7 @@
 #pragma once
 #include "Shader.h"
 #include "Model.h"
+#include "Door.h"
 #include "Camera.h"
 #include "Scene.h"
 #include "glm/glm.hpp"
@@ -13,8 +14,8 @@
 class CorridorScene : Scene
 {
 public:
-	CorridorScene(Physics simulation);
-	void Draw(Camera camera, float time);
+	CorridorScene(Physics &simulation, Model &roomModel, std::vector<Door> doors);
+	void Draw(Camera &camera, float time);
 	bool hasBloom();
 	~CorridorScene();
 
@@ -36,6 +37,7 @@ private:
 	glm::vec3 lightSupportPositions[CORRIDOR_POINT_LIGHTS];
 	glm::vec3 pointLightPositions[CORRIDOR_POINT_LIGHTS];
 	float lightSupportRotations[CORRIDOR_POINT_LIGHTS];
+	std::vector<Door> doors;
 	glm::vec3 lightDir;
 
 	//Skybox setup

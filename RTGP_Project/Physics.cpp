@@ -21,6 +21,7 @@ Physics::Physics()
 
 	// we set the gravity force
 	this->dynamicsWorld->setGravity(btVector3(0.0f, -9.82f, 0.0f));
+
 }
 
 btRigidBody* Physics::createRigidBody(int type, glm::vec3 pos, 
@@ -99,10 +100,9 @@ btRigidBody* Physics::createRigidBody(int type, glm::vec3 pos,
 	return body;
 }
 
-btRigidBody * Physics::createStaticRigidBodyWithTriangleMesh(Model model, glm::vec3 pos, 
+void Physics::createStaticRigidBodyWithTriangleMesh(Model &model, glm::vec3 pos, 
 	glm::vec3 size, glm::vec3 rot, float friction)
 {
-
 	for (auto& mesh : model.getMeshes()) {
 		btTriangleMesh * trimesh = new btTriangleMesh();
 		for (int i = 0; i < mesh.indices.size(); i+=3)
@@ -117,21 +117,12 @@ btRigidBody * Physics::createStaticRigidBodyWithTriangleMesh(Model model, glm::v
 			trimesh->addTriangle(vertex0, vertex1, vertex2);
 		}
 		btBvhTriangleMeshShape *tmpshape = new btBvhTriangleMeshShape(trimesh, false);
-		/*btShapeHull *hull = new btShapeHull(tmpshape);
-		btScalar margin = tmpshape->getMargin();
-		hull->buildHull(margin);
-		tmpshape->setUserPointer(hull);*/
-
-		// we convert the glm vector to a Bullet vector
 		btVector3 position = btVector3(pos.x, pos.y, pos.z);
-
 		// we set a quaternion from the Euler angles passed as parameters
 		btQuaternion rotation;
 		rotation.setEuler(rot.x, rot.y, rot.z);
-
 		// we add this Collision Shape to the vector
 		this->collisionShapes.push_back(tmpshape);
-
 		// We set the initial transformations
 		btTransform objTransform;
 		objTransform.setIdentity();
@@ -155,8 +146,6 @@ btRigidBody * Physics::createStaticRigidBodyWithTriangleMesh(Model model, glm::v
 		// the function returns a pointer to the created rigid body
 		// in a standard simulation (e.g., only objects falling), it is not needed to have a reference to a single rigid body, but in some cases (e.g., the application of an impulse), it is needed.
 	}
-	//DEBUG
-	return nullptr;
 }
 
 void Physics::Clear()
@@ -200,3 +189,4 @@ void Physics::Clear()
 
 	this->collisionShapes.clear();
 }
+

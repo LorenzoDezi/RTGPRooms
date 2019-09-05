@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="BlinnPhongModel.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Door.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -32,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h" />
+    <ClInclude Include="Door.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Model.h" />

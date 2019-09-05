@@ -16,6 +16,7 @@ Universita' degli Studi di Milano
 
 #include <bullet/btBulletDynamicsCommon.h>
 #include "bullet/BulletCollision/CollisionShapes/btShapeHull.h"
+#include <bullet/btBulletCollisionCommon.h>
 #include "Model.h"
 #include <glm/glm.hpp>
 
@@ -45,9 +46,10 @@ public:
 	btRigidBody* createRigidBody(int type, glm::vec3 pos, glm::vec3 size,
 		glm::vec3 rot, float m, float friction, float restitution, float angularDamping = INFINITY, float rollingFriction = INFINITY);
 
-	btRigidBody* createStaticRigidBodyWithTriangleMesh(Model model, glm::vec3 pos, glm::vec3 size, glm::vec3 rot, float friction = 0.0f);
+	void createStaticRigidBodyWithTriangleMesh(Model &model, glm::vec3 pos, glm::vec3 size, glm::vec3 rot, float friction = 0.0f);
 
 	//////////////////////////////////////////
 	// We delete the data of the physical simulation when the program ends
 	void Clear();
+
 };

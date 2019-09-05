@@ -10,6 +10,7 @@
 #include "RenderQuad.h"
 #include "Skybox.h"
 #include "Camera.h"
+#include "Door.h"
 #include "Model.h"
 #include <iostream>
 
@@ -28,6 +29,7 @@ GLuint getBlurredBuffer(Shader &shaderBlur, GLuint &colorBuffer, GLuint pingpong
 	GLuint pingpongBuffer[], RenderQuad& quad);
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
 void processInput(GLFWwindow *w);
+std::vector<Door> getDoors();
 //DEBUG
 void showFrameRate();
 
@@ -86,8 +88,10 @@ int main() {
 	GLuint pingpongFBO[2], pingpongBuffer[2];
 	generateBlurPingPongBuffers(pingpongFBO, pingpongBuffer);
 	RenderQuad hdrQuad;
+	Model roomModel("Assets/rooms2.obj");
+	std::vector<Door> doors = getDoors();
+	CorridorScene scene(physicsSimulation, roomModel, doors);
 	
-	CorridorScene scene(physicsSimulation);
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//frame calc
@@ -97,6 +101,21 @@ int main() {
 
 		//Updating physics simulation
 		physicsSimulation.dynamicsWorld->stepSimulation((deltaTime < maxSecPerFrame ? deltaTime : maxSecPerFrame), 10);
+		
+		//DEBUG RAYTRACE
+		btCollisionWorld::ClosestRayResultCallback rayCallback(
+			btVector3(camera.Position.x, camera.Position.y, camera.Position.z),
+			btVector3(camera.Front.x, camera.Front.y, camera.Front.z) * 2.0f
+		);
+		rayCallback.m_collisionFilterMask = btBroadphaseProxy::KinematicFilter;
+		physicsSimulation.dynamicsWorld->rayTest(
+			btVector3(camera.Position.x, camera.Position.y, camera.Position.z),
+			btVector3(camera.Front.x, camera.Front.y, camera.Front.z) * 2.0f,
+			rayCallback);
+		if (rayCallback.hasHit()) {
+			std::cout << "Hit!" << std::endl;
+		}
+
 		processInput(window);
 		//Rendering into the floating point framebuffer for hdr
 		glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
@@ -248,6 +267,18 @@ void processInput(GLFWwindow *w) {
 	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
 		camera.ProcessKeyboard(RIGHT);
 	}
+}
+
+std::vector<Door> getDoors()
+{
+	return std::vector<Door> {
+		Door(CORRIDOR, glm::vec3(0.01f, 0.0f, 0.0f), physicsSimulation),
+		Door(CORRIDOR, glm::vec3(2.94f, 0.0, 3.83f), physicsSimulation),
+		Door(TOON, glm::vec3(3.08f, 0.0f, 3.83f), physicsSimulation),
+		Door(CORRIDOR, glm::vec3(2.94f, 0.0, -3.83f), physicsSimulation),
+		Door(ABSTRACT, glm::vec3(3.08f, 0.0f, -3.83f), physicsSimulation),
+		Door(NATURAL, glm::vec3(-0.15f, 0.0f, 0.0f), physicsSimulation)
+	};
 }
 
 
