@@ -95,17 +95,20 @@ int main() {
 	RenderQuad hdrQuad;
 
 	//Scene setup
+	//Rooms
 	Model roomModel("Assets/rooms2.obj");
-	//Physics setup
 	physicsSimulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(),
 		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
+
+	//Doors
 	std::vector<Door> doors = getDoors();
+	//Map scenetype -> room
 	sceneType currentSceneType = CORRIDOR;
 	sceneMap[CORRIDOR] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
-	sceneMap[NATURAL] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
+	sceneMap[NATURAL] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors));
 	//TODO: Implement toon and abstract classes
-	sceneMap[TOON] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
-	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
+	sceneMap[TOON] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors));
+	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors));
 	
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,15 +120,14 @@ int main() {
 		//Updating physics simulation
 		physicsSimulation.dynamicsWorld->stepSimulation((deltaTime < maxSecPerFrame ? deltaTime : maxSecPerFrame), 10);
 		
-		//DEBUG RAYTRACE
 		btCollisionWorld::ClosestRayResultCallback rayCallback(
 			btVector3(camera.Position.x, camera.Position.y, camera.Position.z),
-			btVector3(camera.Front.x, camera.Front.y, camera.Front.z)
+			btVector3(camera.WorldFront.x, camera.WorldFront.y, camera.WorldFront.z) * 0.01f
 		);
 		rayCallback.m_collisionFilterMask = btBroadphaseProxy::KinematicFilter;
 		physicsSimulation.dynamicsWorld->rayTest(
 			btVector3(camera.Position.x, camera.Position.y, camera.Position.z),
-			btVector3(camera.Front.x, camera.Front.y, camera.Front.z),
+			btVector3(camera.WorldFront.x, camera.WorldFront.y, camera.WorldFront.z) * 0.01f,
 			rayCallback);
 		if (rayCallback.hasHit()) {
 			sceneType *val = static_cast<sceneType *>(rayCallback.m_collisionObject->getUserPointer());

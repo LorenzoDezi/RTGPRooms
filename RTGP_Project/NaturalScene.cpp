@@ -7,12 +7,12 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<Do
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
 	roomModel(roomModel), torchModel("Assets/torch2.obj"),
 	doorModel("Assets/door.obj"), sphereModel("Assets/sphere.obj"), faces{
-	"assets/textures/purplenebula_lf.tga",
-	"assets/textures/purplenebula_rt.tga",
-	"assets/textures/purplenebula_up.tga",
-	"assets/textures/purplenebula_dn.tga",
-	"assets/textures/purplenebula_ft.tga",
-	"assets/textures/purplenebula_bk.tga" },
+	"assets/textures/interstellar_lf.tga",
+	"assets/textures/interstellar_rt.tga",
+	"assets/textures/interstellar_up.tga",
+	"assets/textures/interstellar_dn.tga",
+	"assets/textures/interstellar_ft.tga",
+	"assets/textures/interstellar_bk.tga" },
 	skybox(faces),
 	lightSupportRotations{ 0.f, 0.f, 0.f, 0.f, 135.f, 135.f },
 	lightSupportPositions{

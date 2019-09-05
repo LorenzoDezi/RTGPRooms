@@ -25,6 +25,8 @@ private:
 	//Shaders
 	Shader shader;
 	Shader shaderLight;
+	//TODO
+	//Shader shaderGrass;
 	Shader doorShader;
 	Shader skyboxShader;
 	BlinnPhongModel model;
