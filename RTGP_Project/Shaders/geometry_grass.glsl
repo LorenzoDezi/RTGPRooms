@@ -8,9 +8,10 @@ out vec2 TexCoord;
 out vec3 WorldPos;
 out vec4 EyeSpacePos;
 
+in mat4 modelMatrix[];
+
 uniform float time;
 uniform mat4 projMatrix;
-uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 
 //Rotation matrix used to perform the wind rotation
@@ -49,8 +50,9 @@ int randomInt(int min, int max)
 
 void main()
 {
-	mat4 mMV = viewMatrix*modelMatrix;  
-	mat4 mMVP = projMatrix*viewMatrix*modelMatrix;
+	mat4 modelMat = modelMatrix[0];
+	mat4 mMV = viewMatrix* modelMat;
+	mat4 mMVP = projMatrix*viewMatrix*modelMat;
 	
 	vec3 GrassFieldPos = gl_in[0].gl_Position.xyz;
 
@@ -65,8 +67,8 @@ void main()
 	);
 	
 	//the size of the quad
-	float grassPatchSize = 5.0;
-	float windStrenght = 4.0;
+	float grassPatchSize = 0.5;
+	float windStrenght = 0.1;
 	
 	vec3 windDir = vec3(1.0, 0.0, 1.0);
 	windDir = normalize(windDir);
@@ -81,7 +83,7 @@ void main()
 		//Also the x start position of the quad is changed randomly...
 		int grassPatch = randomInt(0, 3);
 		//.. and the height
-		float grassPatchHeight = 3.5+randZeroOne()*2.0;
+		float grassPatchHeight = 0.5+randZeroOne()*0.5;
 	
 		//Starting x (scaled down) and ending x values
 		float quadStartX = float(grassPatch)*0.25;

@@ -10,8 +10,8 @@ class Grass
 {
 public:
 	Grass();
-	void Draw(glm::vec3 position, glm::mat4 view, glm::mat4 projection, float time);
-	void DrawInstanced(glm::mat4 view, glm::mat4 projection, float time);
+	void setPositions(std::vector<glm::vec3> positions);
+	void Draw(glm::mat4 view, glm::mat4 projection, float time);
 	GLuint TextureFromFile(const char * path, const std::string & directory, bool gamma);
 	~Grass();
 
@@ -19,6 +19,7 @@ private:
 	Shader grassShader;
 	GLuint VBO, VAO;
 	GLuint grassTexture;
+	GLuint amount;
 
 };
 

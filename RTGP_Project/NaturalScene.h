@@ -45,9 +45,12 @@ private:
 	std::vector<Door> doors;
 	glm::vec3 lightDir;
 
+	//Grass setup
+	Grass grass;
+	std::vector<glm::vec3> grassPos;
+
 	//Skybox setup
 	std::string faces[6];
-	Grass grass;
 	Skybox skybox;
 
 };

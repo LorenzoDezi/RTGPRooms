@@ -35,6 +35,13 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<Do
 	//Physics setup
 	simulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(),
 		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
+	glm::vec3 startPos(-6.09046, 0.0, -6.64406);
+	for (float x = 0.0f; x <= 4.23906f; x += 0.1f) {
+		for (float z = 0.0f; z <= 13.34869; z += 0.1f) {
+			grassPos.push_back(glm::vec3{ startPos.x + x, startPos.y, startPos.z + z });
+		}
+	}
+	grass.setPositions(grassPos);
 }
 
 void NaturalScene::Draw(Camera &camera, float time)
@@ -90,7 +97,8 @@ void NaturalScene::Draw(Camera &camera, float time)
 		door.Draw(doorShader);
 	}
 
-	grass.Draw(glm::vec3(-3.42358f, 1.0f, 0.494248f), view, projection, time);
+	//Grass rendering
+	grass.Draw(view, projection, time);
 
 	//room rendering
 	model.setMaterial(0.3f, 0.8f, 0.1f, 0.2f);

@@ -20,30 +20,55 @@ Grass::Grass() : grassShader("Shaders/vertex_grass.glsl", "Shaders/fragment_gras
 	//Texture setup
 	grassTexture = TextureFromFile("Grass_Blade_02.png", "Assets/textures/grass", false);
 	grassShader.use();
-	//TODO: choose right alpha value and alpha multiplier
+	grassShader.setInt("texture", 0);
 	grassShader.setFloat("alphaTest", 0.01f);
 	grassShader.setFloat("alphaMultiplier", 0.2f);
 }
 
-void Grass::Draw(glm::vec3 position, glm::mat4 view, glm::mat4 projection, float time)
+void Grass::setPositions(std::vector<glm::vec3> positions)
 {
-	glm::mat4 model(1.0f);
-	model = glm::translate(model, position);
+	//Creating model matrices
+	std::vector<glm::mat4> modelMatrices;
+	for (auto& pos : positions) {
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, pos);
+		modelMatrices.push_back(model);
+	}
+	amount = modelMatrices.size();
+	unsigned int buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+	glBindVertexArray(VAO);
+	GLsizei vec4Size = sizeof(glm::vec4);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(vec4Size));
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+
+	glVertexAttribDivisor(1, 1);
+	glVertexAttribDivisor(2, 1);
+	glVertexAttribDivisor(3, 1);
+	glVertexAttribDivisor(4, 1);
+
+	glBindVertexArray(0);
+}
+
+void Grass::Draw(glm::mat4 view, glm::mat4 projection, float time)
+{
 	grassShader.use();
 	grassShader.setMat4Float("projMatrix", glm::value_ptr(projection));
 	grassShader.setMat4Float("viewMatrix", glm::value_ptr(view));
-	grassShader.setMat4Float("modelMatrix", glm::value_ptr(model));
 	grassShader.setFloat("time", time);
 	glBindVertexArray(VAO);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, grassTexture);
-	grassShader.setInt("texture", 0);
-	glDrawArrays(GL_POINTS, 0, 1);
+	glDrawArraysInstanced(GL_POINTS, 0, 1, amount);
 	glBindVertexArray(0);
-}
-
-void Grass::DrawInstanced(glm::mat4 view, glm::mat4 projection, float time)
-{
 }
 
 //TODO: Find a unique place for this function
