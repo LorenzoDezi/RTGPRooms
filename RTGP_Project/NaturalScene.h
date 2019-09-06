@@ -1,6 +1,7 @@
 #pragma once
 #include "Shader.h"
 #include "Model.h"
+#include "Grass.h"
 #include "Door.h"
 #include "Camera.h"
 #include "Scene.h"
@@ -46,6 +47,7 @@ private:
 
 	//Skybox setup
 	std::string faces[6];
+	Grass grass;
 	Skybox skybox;
 
 };

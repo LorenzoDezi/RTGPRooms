@@ -90,6 +90,8 @@ void NaturalScene::Draw(Camera &camera, float time)
 		door.Draw(doorShader);
 	}
 
+	grass.Draw(glm::vec3(-3.42358f, 1.0f, 0.494248f), view, projection, time);
+
 	//room rendering
 	model.setMaterial(0.3f, 0.8f, 0.1f, 0.2f);
 	glm::mat4 model = glm::mat4(1.0f);

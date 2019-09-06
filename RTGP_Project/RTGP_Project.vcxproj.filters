@@ -54,6 +54,9 @@
     <ClCompile Include="NaturalScene.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="Grass.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h">
@@ -95,6 +98,9 @@
     <ClInclude Include="NaturalScene.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="Grass.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment_lamp.glsl">
@@ -128,6 +134,15 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\fragment_door.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertex_grass.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\geometry_grass.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_grass.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

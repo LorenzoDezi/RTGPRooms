@@ -22,6 +22,7 @@
     <ClCompile Include="BlinnPhongModel.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Door.cpp" />
+    <ClCompile Include="Grass.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -35,6 +36,7 @@
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h" />
     <ClInclude Include="Door.h" />
+    <ClInclude Include="Grass.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Model.h" />
@@ -55,6 +57,9 @@
     <None Include="Shaders\fragment_phong.glsl" />
     <None Include="Shaders\fragment_skybox.glsl" />
     <None Include="Shaders\vertex_door.glsl" />
+    <None Include="Shaders\fragment_grass.glsl" />
+    <None Include="Shaders\geometry_grass.glsl" />
+    <None Include="Shaders\vertex_grass.glsl" />
     <None Include="Shaders\vertex_hdr.glsl" />
     <None Include="Shaders\vertex_lamp.glsl" />
     <None Include="Shaders\vertex_phong.glsl" />
