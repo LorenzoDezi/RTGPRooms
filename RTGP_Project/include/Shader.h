@@ -14,7 +14,7 @@
 
 class Shader {
 public:
-    unsigned int ID;
+    GLuint ID;
 	Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLchar *geometryPath = nullptr);
     void use();
     void setBool(const std::string &name, bool value) const;
@@ -23,6 +23,7 @@ public:
     void setVec4Float(const std::string &name, float v1, float v2, float v3, float v4) const;
 	void setVec3Float(const std::string &name, float v1, float v2, float v3) const;
 	void setMat4Float(const std::string &name, const float *mat) const;
+	~Shader();
 
 private:
     void checkShaderCompilation(unsigned int vertexShader);

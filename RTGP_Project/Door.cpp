@@ -9,7 +9,7 @@ Door::Door(sceneType type, glm::vec3 position, glm::vec3 collisionPos, Physics &
 	body-> setUserPointer(new int(type));
 }
 
-void Door::Draw(Shader shader)
+void Door::Draw(Shader &shader)
 {
 	glm::mat4 modelMat = glm::mat4(1.0f);
 	modelMat = glm::translate(modelMat, position);

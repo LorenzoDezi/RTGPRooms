@@ -81,7 +81,7 @@ Skybox::Skybox(std::string faces[])
 	glBindVertexArray(0);
 }
 
-void Skybox::Draw(Shader shader, glm::mat4 view, glm::mat4 projection)
+void Skybox::Draw(Shader &shader, glm::mat4 view, glm::mat4 projection)
 {
 	glDepthFunc(GL_LEQUAL);
 	shader.use();

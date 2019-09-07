@@ -4,28 +4,24 @@ std::vector<int> Model::GetVAOs()
 {
 	std::vector<int> VAOs;
 	for (int i = 0; i < meshes.size(); i++) {
-		VAOs.push_back(meshes[i].GetVAO());
+		VAOs.push_back(meshes[i]->GetVAO());
 	}
 	return VAOs;
 }
 
-void Model::Draw(Shader shader)
+void Model::Draw(Shader &shader)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
-		meshes[i].Draw(shader);
+		meshes[i]->Draw(shader);
 }
 
-void Model::DrawInstanced(Shader shader, int amount)
-{
-	for (unsigned int i = 0; i < meshes.size(); i++)
-	{
-		meshes[i].DrawInstanced(shader, amount);
-	}
-}
-
-std::vector<Mesh> Model::getMeshes()
+std::vector<std::shared_ptr<Mesh>> Model::getMeshes()
 {
 	return meshes;
+}
+
+Model::~Model()
+{
 }
 
 void Model::loadModel(std::string path)
@@ -59,7 +55,7 @@ void Model::processNode(aiNode * node, const aiScene * scene)
 	//NB: parent-child relationship not used here, maybe you should in your project
 }
 
-Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
+std::shared_ptr<Mesh> Model::processMesh(aiMesh * mesh, const aiScene * scene)
 {
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
@@ -127,7 +123,7 @@ Mesh Model::processMesh(aiMesh * mesh, const aiScene * scene)
 			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 		}
 	}
-	return Mesh(vertices, indices, textures);
+	return std::make_shared<Mesh>(vertices, indices, textures);
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type, std::string typeName)
@@ -151,7 +147,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType
 		}
 		if (!skip) {
 			Texture texture;
-			texture.id = TextureFromFile(str.C_Str(), directory);
+			texture.id = ImageUtility::TextureFromFile(str.C_Str(), directory);
 			texture.type = typeName;
 			texture.path = str.C_Str();
 			textures.push_back(texture);
@@ -160,42 +156,3 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType
 	return textures;
 }
 
-unsigned int TextureFromFile(const char * path, const std::string & directory, bool gamma)
-{
-	std::string filename = std::string(path);
-	filename = directory + '/' + filename;
-
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
-}

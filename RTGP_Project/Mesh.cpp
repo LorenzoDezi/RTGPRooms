@@ -14,7 +14,7 @@ int Mesh::GetVAO()
 	return VAO;
 }
 
-void Mesh::Draw(Shader shader)
+void Mesh::Draw(Shader &shader)
 {
 	unsigned int diffuseNr = 1;
 	unsigned int specularNr = 1;
@@ -43,33 +43,11 @@ void Mesh::Draw(Shader shader)
 	glBindVertexArray(0);
 }
 
-void Mesh::DrawInstanced(Shader shader, int amount)
+Mesh::~Mesh()
 {
-	//TODO Use private function for texture setup
-	unsigned int diffuseNr = 1;
-	unsigned int specularNr = 1;
-	unsigned int reflectiveNr = 1;
-	for (unsigned int i = 0; i < textures.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
-		std::string number;
-		std::string name = textures[i].type;
-		//using a naming convention for the different texture types
-		if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++);
-		else if (name == "texture_reflective")
-			number = std::to_string(reflectiveNr++);
-
-		shader.setFloat("material." + name + number, i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);
-	}
-	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(VAO);
-	glDrawElementsInstanced(
-		GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, amount
-	);
-	glBindVertexArray(0);
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &EBO);
 }
 
 void Mesh::setupMesh()

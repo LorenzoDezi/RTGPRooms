@@ -7,8 +7,10 @@ layout(max_vertices = 12) out;
 out vec2 TexCoord;
 out vec3 WorldPos;
 out vec4 EyeSpacePos;
+flat out int TexIndex;
 
 in mat4 modelMatrix[];
+flat in int texIndex[];
 
 uniform float time;
 uniform mat4 projMatrix;
@@ -67,12 +69,11 @@ void main()
 	);
 	
 	//the size of the quad
-	float grassPatchSize = 0.5;
-	float windStrenght = 0.1;
+	float grassPatchSize = 0.6;
+	float windStrenght = 0.2;
 	
 	vec3 windDir = vec3(1.0, 0.0, 1.0);
 	windDir = normalize(windDir);
-	
 	for(int i = 0; i < 3; i++)
 	{
 		// Grass patch top left vertex
@@ -83,7 +84,7 @@ void main()
 		//Also the x start position of the quad is changed randomly...
 		int grassPatch = randomInt(0, 3);
 		//.. and the height
-		float grassPatchHeight = 0.5+randZeroOne()*0.5;
+		float grassPatchHeight = 0.5+randZeroOne()*1.3;
 	
 		//Starting x (scaled down) and ending x values
 		float quadStartX = float(grassPatch)*0.25;
@@ -102,6 +103,7 @@ void main()
 		gl_Position = mMVP*vec4(topLeftPos, 1.0);
 		TexCoord = vec2(0.0, 1.0);
 		WorldPos = topLeftPos;
+		TexIndex = texIndex[0];
 		EyeSpacePos = mMV*vec4(topLeftPos, 1.0);
 		EmitVertex();
 		
@@ -110,6 +112,7 @@ void main()
 		gl_Position = mMVP*vec4(bottomLeftPos, 1.0);
 		TexCoord = vec2(0.0, 0.0);
 		WorldPos = bottomLeftPos;
+		TexIndex = texIndex[0];
 		EyeSpacePos = mMV*vec4(bottomLeftPos, 1.0);
 		EmitVertex();
 		                               
@@ -119,6 +122,7 @@ void main()
 		gl_Position = mMVP*vec4(topRightPos, 1.0);
 		TexCoord = vec2(1.0, 1.0);
 		WorldPos = topRightPos;
+		TexIndex = texIndex[0];
 		EyeSpacePos = mMV*vec4(topRightPos, 1.0);
 		EmitVertex();
 		
@@ -127,10 +131,11 @@ void main()
 		gl_Position = mMVP*vec4(bottomRightPos, 1.0);
 		TexCoord = vec2(1.0, 0.0);
 		WorldPos = bottomRightPos;
+		TexIndex = texIndex[0];
 		EyeSpacePos = mMV*vec4(bottomRightPos, 1.0);
 		EmitVertex();
 		
 		EndPrimitive();
-	}		
+	}
 
 }

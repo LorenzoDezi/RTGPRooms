@@ -23,6 +23,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Grass.cpp" />
+    <ClCompile Include="ImageUtility.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -37,6 +38,7 @@
     <ClInclude Include="BlinnPhongModel.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Grass.h" />
+    <ClInclude Include="ImageUtility.h" />
     <ClInclude Include="include\Camera.h" />
     <ClInclude Include="include\Mesh.h" />
     <ClInclude Include="include\Model.h" />

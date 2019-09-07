@@ -12,7 +12,7 @@ class Door
 {
 public:
 	Door(sceneType type, glm::vec3 position, glm::vec3 collisionPos, Physics &physicsSimulation);
-	void Draw(Shader shader);
+	void Draw(Shader &shader);
 	sceneType getSceneType();
 
 private:

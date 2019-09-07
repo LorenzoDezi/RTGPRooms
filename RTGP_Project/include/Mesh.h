@@ -27,8 +27,8 @@ public:
 	/*  Functions  */
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 	int GetVAO();
-	void Draw(Shader shader);
-	void DrawInstanced(Shader shader, int amount);
+	void Draw(Shader &shader);
+	~Mesh();
 private:
 	/*  Render data  */
 	unsigned int VAO, VBO, EBO;

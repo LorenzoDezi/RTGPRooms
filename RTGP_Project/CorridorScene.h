@@ -9,12 +9,12 @@
 #include "Skybox.h"
 #include "BlinnPhongModel.h"
 
-#define CORRIDOR_POINT_LIGHTS 6
+#define NR_CORRIDOR_POINT_LIGHTS 6
 
 class CorridorScene : public Scene
 {
 public:
-	CorridorScene(Physics &simulation, Model &roomModel, std::vector<Door> doors);
+	CorridorScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors);
 	void Draw(Camera &camera, float time);
 	bool hasBloom();
 	~CorridorScene();
@@ -34,10 +34,10 @@ private:
 	Model sphereModel;
 
 	//Light positions setup
-	glm::vec3 lightSupportPositions[CORRIDOR_POINT_LIGHTS];
-	glm::vec3 pointLightPositions[CORRIDOR_POINT_LIGHTS];
-	float lightSupportRotations[CORRIDOR_POINT_LIGHTS];
-	std::vector<Door> doors;
+	glm::vec3 lightSupportPositions[NR_CORRIDOR_POINT_LIGHTS];
+	glm::vec3 pointLightPositions[NR_CORRIDOR_POINT_LIGHTS];
+	float lightSupportRotations[NR_CORRIDOR_POINT_LIGHTS];
+	std::vector<std::shared_ptr<Door>> doors;
 	glm::vec3 lightDir;
 
 	//Skybox setup

@@ -57,6 +57,9 @@
     <ClCompile Include="Grass.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="ImageUtility.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h">
@@ -99,6 +102,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="Grass.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageUtility.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

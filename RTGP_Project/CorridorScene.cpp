@@ -1,7 +1,7 @@
 #include "CorridorScene.h"
 
 //TODO: toggle simulation
-CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<Door> doors) :
+CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors) :
 	shader("Shaders/vertex_phong.glsl", "Shaders/fragment_phong.glsl"),
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
@@ -56,7 +56,7 @@ void CorridorScene::Draw(Camera &camera, float time)
 	shaderLight.setMat4Float("projection", glm::value_ptr(projection));
 	model.setLightParameters(glm::vec3(3.0f, 3.0f, 3.0f),
 		glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(3.0f, 3.0f, 3.0f));
-	for (int i = 0; i < CORRIDOR_POINT_LIGHTS; i++) {
+	for (int i = 0; i < NR_CORRIDOR_POINT_LIGHTS; i++) {
 		model.setPointLight(pointLightPositions[i], i);
 		shaderLight.use();
 		glm::mat4 model = glm::mat4(1.0f);
@@ -67,7 +67,7 @@ void CorridorScene::Draw(Camera &camera, float time)
 	}
 	//light supports rendering
 	model.setMaterial(0.2f, 0.4f, 0.0f, 0.2f);
-	for (int i = 0; i < CORRIDOR_POINT_LIGHTS; i++) {
+	for (int i = 0; i < NR_CORRIDOR_POINT_LIGHTS; i++) {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, lightSupportPositions[i]);
 		model = glm::rotate(model, lightSupportRotations[i], glm::vec3(0.0f, 1.0f, 0.0f));
@@ -82,7 +82,7 @@ void CorridorScene::Draw(Camera &camera, float time)
 	doorShader.setMat4Float("projection", glm::value_ptr(projection));
 	doorShader.setFloat("time", time);
 	for (auto& door : doors) {
-		door.Draw(doorShader);
+		door->Draw(doorShader);
 	}
 	
 	//room rendering

@@ -32,7 +32,6 @@ GLuint getBlurredBuffer(Shader &shaderBlur, GLuint &colorBuffer, GLuint pingpong
 	GLuint pingpongBuffer[], RenderQuad& quad);
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
 void processInput(GLFWwindow *w);
-std::vector<Door> getDoors();
 
 void showFrameRate();
 
@@ -101,14 +100,22 @@ int main() {
 		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 
 	//Doors
-	std::vector<Door> doors = getDoors();
+	std::vector<std::shared_ptr<Door>> doors {
+		std::make_shared<Door>(CORRIDOR, glm::vec3(0.01f, 0.0f, 0.0f), glm::vec3(-1.38f, 1.5f, -0.09f), physicsSimulation),
+		std::make_shared<Door>(CORRIDOR, glm::vec3(0.01f, 0.0f, 0.0f), glm::vec3(-1.38f, 1.5f, -0.09f), physicsSimulation),
+		std::make_shared<Door>(CORRIDOR, glm::vec3(2.94f, 0.0, 3.83f), glm::vec3(1.32f, 1.5f, 3.96f), physicsSimulation),
+		std::make_shared<Door>(TOON, glm::vec3(3.08f, 0.0f, 3.83f), glm::vec3(1.52f, 1.5f, 3.96f), physicsSimulation),
+		std::make_shared<Door>(CORRIDOR, glm::vec3(2.94f, 0.0, -3.83f), glm::vec3(1.32f, 1.5f, -3.72f), physicsSimulation),
+		std::make_shared<Door>(ABSTRACT, glm::vec3(3.08f, 0.0f, -3.83f), glm::vec3(1.52f, 1.5f, -3.72f), physicsSimulation),
+		std::make_shared<Door>(NATURAL, glm::vec3(-0.15f, 0.0f, 0.0f), glm::vec3(-1.58f, 1.5f, -0.09f), physicsSimulation)
+	};
 	//Map scenetype -> room
 	sceneType currentSceneType = CORRIDOR;
 	sceneMap[CORRIDOR] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
 	sceneMap[NATURAL] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors));
 	//TODO: Implement toon and abstract classes
-	sceneMap[TOON] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors));
-	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors));
+	sceneMap[TOON] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
+	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
 	
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -292,19 +299,6 @@ void processInput(GLFWwindow *w) {
 		std::cout << camera.Position.x << "-" << camera.Position.y << "-" << camera.Position.z << std::endl;
 	}
 }
-
-std::vector<Door> getDoors()
-{
-	return std::vector<Door> {
-		Door(CORRIDOR, glm::vec3(0.01f, 0.0f, 0.0f), glm::vec3(-1.38f, 1.5f, -0.09f),  physicsSimulation),
-		Door(CORRIDOR, glm::vec3(2.94f, 0.0, 3.83f), glm::vec3(1.32f, 1.5f, 3.96f), physicsSimulation),
-		Door(TOON, glm::vec3(3.08f, 0.0f, 3.83f), glm::vec3(1.52f, 1.5f, 3.96f), physicsSimulation),
-		Door(CORRIDOR, glm::vec3(2.94f, 0.0, -3.83f), glm::vec3(1.32f, 1.5f, -3.72f), physicsSimulation),
-		Door(ABSTRACT, glm::vec3(3.08f, 0.0f, -3.83f), glm::vec3(1.52f, 1.5f, -3.72f), physicsSimulation),
-		Door(NATURAL, glm::vec3(-0.15f, 0.0f, 0.0f), glm::vec3(-1.58f, 1.5f, -0.09f), physicsSimulation)
-	};
-}
-
 
 void showFrameRate()
 {

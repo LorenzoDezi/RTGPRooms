@@ -105,14 +105,14 @@ void Physics::createStaticRigidBodyWithTriangleMesh(Model &model, glm::vec3 pos,
 {
 	for (auto& mesh : model.getMeshes()) {
 		btTriangleMesh * trimesh = new btTriangleMesh();
-		for (int i = 0; i < mesh.indices.size(); i+=3)
+		for (int i = 0; i < mesh->indices.size(); i+=3)
 		{
-			int index0 = mesh.indices[i];
-			int index1 = mesh.indices[i+1];
-			int index2 = mesh.indices[i+2];
-			btVector3 vertex0(mesh.vertices[index0].Position.x, mesh.vertices[index0].Position.y, mesh.vertices[index0].Position.z);
-			btVector3 vertex1(mesh.vertices[index1].Position.x, mesh.vertices[index1].Position.y, mesh.vertices[index1].Position.z);
-			btVector3 vertex2(mesh.vertices[index2].Position.x, mesh.vertices[index2].Position.y, mesh.vertices[index2].Position.z);
+			int index0 = mesh->indices[i];
+			int index1 = mesh->indices[i+1];
+			int index2 = mesh->indices[i+2];
+			btVector3 vertex0(mesh->vertices[index0].Position.x, mesh->vertices[index0].Position.y, mesh->vertices[index0].Position.z);
+			btVector3 vertex1(mesh->vertices[index1].Position.x, mesh->vertices[index1].Position.y, mesh->vertices[index1].Position.z);
+			btVector3 vertex2(mesh->vertices[index2].Position.x, mesh->vertices[index2].Position.y, mesh->vertices[index2].Position.z);
 
 			trimesh->addTriangle(vertex0, vertex1, vertex2);
 		}

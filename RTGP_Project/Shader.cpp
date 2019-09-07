@@ -1,7 +1,3 @@
-//
-// Created by dezio on 07/04/2019.
-//
-
 #include "Shader.h"
 
 Shader::Shader(const GLchar * vertexPath, const GLchar * fragmentPath, const GLchar * geometryPath)
@@ -9,7 +5,7 @@ Shader::Shader(const GLchar * vertexPath, const GLchar * fragmentPath, const GLc
 	//Extracting and compiling shader sources
 	std::string vertexCode = extractShaderFromFile(vertexPath);
 	std::string fragCode = extractShaderFromFile(fragmentPath);
-	unsigned int vertexID, fragID, geometryID;
+	GLuint vertexID, fragID, geometryID;
 	vertexID = compileShader(vertexCode.c_str(), GL_VERTEX_SHADER);
 	fragID = compileShader(fragCode.c_str(), GL_FRAGMENT_SHADER);
 	if (geometryPath != nullptr) {
@@ -88,8 +84,8 @@ void Shader::checkProgramLinking(unsigned int shaderProgram) {
     }
 }
 
-unsigned int Shader::compileShader(const char *code, GLenum type) {
-    unsigned int shaderID;
+GLuint Shader::compileShader(const char *code, GLenum type) {
+    GLuint shaderID;
     shaderID = glCreateShader(type);
     glShaderSource(shaderID, 1, &code, NULL);
     glCompileShader(shaderID);
@@ -109,5 +105,10 @@ void Shader::setVec3Float(const std::string & name, float v1, float v2, float v3
 void Shader::setMat4Float(const std::string & name, const float * mat) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, mat);
+}
+
+Shader::~Shader()
+{
+	glDeleteProgram(ID);
 }
 

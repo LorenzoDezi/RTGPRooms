@@ -1,18 +1,18 @@
 #include "NaturalScene.h"
 
-NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<Door> doors) :
+NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors) :
 	shader("Shaders/vertex_phong.glsl", "Shaders/fragment_phong.glsl"),
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
 	roomModel(roomModel), torchModel("Assets/torch2.obj"),
 	doorModel("Assets/door.obj"), sphereModel("Assets/sphere.obj"), faces{
-	"assets/textures/interstellar_lf.tga",
-	"assets/textures/interstellar_rt.tga",
-	"assets/textures/interstellar_up.tga",
-	"assets/textures/interstellar_dn.tga",
-	"assets/textures/interstellar_ft.tga",
-	"assets/textures/interstellar_bk.tga" },
+	"assets/textures/craterlake_lf.tga",
+	"assets/textures/craterlake_rt.tga",
+	"assets/textures/craterlake_up.tga",
+	"assets/textures/craterlake_dn.tga",
+	"assets/textures/craterlake_ft.tga",
+	"assets/textures/craterlake_bk.tga" },
 	skybox(faces),
 	lightSupportRotations{ 0.f, 0.f, 0.f, 0.f, 135.f, 135.f },
 	lightSupportPositions{
@@ -36,8 +36,9 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<Do
 	simulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(),
 		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 	glm::vec3 startPos(-6.09046, 0.0, -6.64406);
-	for (float x = 0.0f; x <= 4.23906f; x += 0.1f) {
-		for (float z = 0.0f; z <= 13.34869; z += 0.1f) {
+	srand(time(NULL));
+	for (float x = 0.0f; x <= 4.23906f; x += (rand() % 3 + 0)/10.f) {
+		for (float z = 0.0f; z <= 13.34869; z += (rand() % 3 + 0) / 10.f) {
 			grassPos.push_back(glm::vec3{ startPos.x + x, startPos.y, startPos.z + z });
 		}
 	}
@@ -58,13 +59,13 @@ void NaturalScene::Draw(Camera &camera, float time)
 		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.02f, 0.02f, 0.02f));
 	model.setDirLight(lightDir);
 
-	//lights rendering
-	shaderLight.use();
-	shaderLight.setMat4Float("view", glm::value_ptr(view));
-	shaderLight.setMat4Float("projection", glm::value_ptr(projection));
+	////lights rendering
+	//shaderLight.use();
+	//shaderLight.setMat4Float("view", glm::value_ptr(view));
+	//shaderLight.setMat4Float("projection", glm::value_ptr(projection));
 	model.setLightParameters(glm::vec3(3.0f, 3.0f, 3.0f),
 		glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(3.0f, 3.0f, 3.0f));
-	for (int i = 0; i < CORRIDOR_POINT_LIGHTS; i++) {
+	for (int i = 0; i < NR_NATURAL_POINT_LIGHTS; i++) {
 		model.setPointLight(pointLightPositions[i], i);
 		shaderLight.use();
 		glm::mat4 model = glm::mat4(1.0f);
@@ -74,7 +75,7 @@ void NaturalScene::Draw(Camera &camera, float time)
 		sphereModel.Draw(shaderLight);
 	}
 	//light supports rendering
-	model.setMaterial(0.2f, 0.4f, 0.0f, 0.2f);
+	/*model.setMaterial(0.2f, 0.4f, 0.0f, 0.2f);
 	for (int i = 0; i < CORRIDOR_POINT_LIGHTS; i++) {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, lightSupportPositions[i]);
@@ -82,19 +83,15 @@ void NaturalScene::Draw(Camera &camera, float time)
 		shader.use();
 		shader.setMat4Float("model", glm::value_ptr(model));
 		torchModel.Draw(shader);
-	}
+	}*/
 
 	//Doors rendering
-	//TODO: move positions in the constructor
-	//and create plane rigidbody (trigger) for each
-	//and assign the proper callback (change of render)
-
 	doorShader.use();
 	doorShader.setMat4Float("view", glm::value_ptr(view));
 	doorShader.setMat4Float("projection", glm::value_ptr(projection));
 	doorShader.setFloat("time", time);
 	for (auto& door : doors) {
-		door.Draw(doorShader);
+		door->Draw(doorShader);
 	}
 
 	//Grass rendering

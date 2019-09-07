@@ -2,7 +2,8 @@
 
 
 
-Grass::Grass() : grassShader("Shaders/vertex_grass.glsl", "Shaders/fragment_grass.glsl", "Shaders/geometry_grass.glsl")
+Grass::Grass() : grassShader(
+	"Shaders/vertex_grass.glsl", "Shaders/fragment_grass.glsl", "Shaders/geometry_grass.glsl")
 {
 	//Vertex setup
 	float vertex[] = { 0.0f, 0.0f, 0.0f };
@@ -18,103 +19,85 @@ Grass::Grass() : grassShader("Shaders/vertex_grass.glsl", "Shaders/fragment_gras
 	glBindVertexArray(0);
 
 	//Texture setup
-	grassTexture = TextureFromFile("Grass_Blade_02.png", "Assets/textures/grass", false);
-	grassShader.use();
-	grassShader.setInt("texture", 0);
+	initTextures();
 	grassShader.setFloat("alphaTest", 0.01f);
 	grassShader.setFloat("alphaMultiplier", 0.2f);
 }
 
-void Grass::setPositions(std::vector<glm::vec3> positions)
+void Grass::setPositions(const std::vector<glm::vec3> &positions)
 {
+	srand(time(NULL));
 	//Creating model matrices
-	std::vector<glm::mat4> modelMatrices;
+	std::vector<GrassInput> grassInputs;
 	for (auto& pos : positions) {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, pos);
-		modelMatrices.push_back(model);
+		GLint index = rand() % 9 + 0;
+		grassInputs.push_back(
+			GrassInput{
+				model, index,
+			}
+		);
 	}
-	amount = modelMatrices.size();
-	unsigned int buffer;
-	glGenBuffers(1, &buffer);
-	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	amount = grassInputs.size();
+	glGenBuffers(1, &instancingVBO);
 	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, instancingVBO);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(GrassInput), &grassInputs[0], GL_STATIC_DRAW);
 	GLsizei vec4Size = sizeof(glm::vec4);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(GrassInput), (void*)0);
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(vec4Size));
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(GrassInput), (void*)(vec4Size));
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(GrassInput), (void*)(2 * vec4Size));
 	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(GrassInput), (void*)(3 * vec4Size));
+	glEnableVertexAttribArray(5);
+	glVertexAttribIPointer(5, 1, GL_INT, sizeof(GrassInput),
+		(void *) (4 * vec4Size));
 
 	glVertexAttribDivisor(1, 1);
 	glVertexAttribDivisor(2, 1);
 	glVertexAttribDivisor(3, 1);
 	glVertexAttribDivisor(4, 1);
+	glVertexAttribDivisor(5, 1);
 
 	glBindVertexArray(0);
 }
 
-void Grass::Draw(glm::mat4 view, glm::mat4 projection, float time)
+void Grass::Draw(const glm::mat4 &view, const glm::mat4 &projection, float time)
 {
 	grassShader.use();
 	grassShader.setMat4Float("projMatrix", glm::value_ptr(projection));
 	grassShader.setMat4Float("viewMatrix", glm::value_ptr(view));
 	grassShader.setFloat("time", time);
+	for (int i = 0; i < 9; i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, grassTextures[i]);
+	}
 	glBindVertexArray(VAO);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, grassTexture);
 	glDrawArraysInstanced(GL_POINTS, 0, 1, amount);
 	glBindVertexArray(0);
-}
-
-//TODO: Find a unique place for this function
-//TODO: Also delete the gamma value
-GLuint Grass::TextureFromFile(const char * path, const std::string & directory, bool gamma)
-{
-	std::string filename = std::string(path);
-	filename = directory + '/' + filename;
-
-	GLuint textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
 }
 
 
 
 Grass::~Grass()
 {
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &instancingVBO);
+	glDeleteTextures(NR_GRASS_TEXTURES, &grassTextures[0]);
+}
+
+void Grass::initTextures()
+{
+	std::string baseName = "Grass_Blade_";
+	grassShader.use();
+	for (int i = 0; i < NR_GRASS_TEXTURES; i++) {
+		grassTextures[i] = ImageUtility::TextureFromFile((baseName + std::to_string(i) + ".png").c_str(), "Assets/textures/grass");
+		grassShader.setInt("texture" + std::to_string(i), i);
+	}
 }

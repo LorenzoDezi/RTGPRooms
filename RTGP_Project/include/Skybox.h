@@ -13,7 +13,7 @@ class Skybox
 {
 public:
 	Skybox(std::string faces[]);
-	void Draw(Shader shader, glm::mat4 view, glm::mat4 projection);
+	void Draw(Shader &shader, glm::mat4 view, glm::mat4 projection);
 	GLuint getTexture();
 	virtual ~Skybox();
 private:
