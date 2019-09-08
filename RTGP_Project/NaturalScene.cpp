@@ -5,8 +5,8 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
-	roomModel(roomModel), torchModel("Assets/torch2.obj"),
-	doorModel("Assets/door.obj"), sphereModel("Assets/sphere.obj"), faces{
+	roomModel(roomModel), treesModels{},
+	doorModel("Assets/door.obj"), faces{
 	"assets/textures/craterlake_lf.tga",
 	"assets/textures/craterlake_rt.tga",
 	"assets/textures/craterlake_up.tga",
@@ -32,9 +32,7 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	doors(doors),
 	lightDir(0.0f, -1.0f, 0.0f), model(shader) {
 
-	//Physics setup
-	simulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(),
-		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
+	
 	glm::vec3 startPos(-6.09046, 0.0, -6.64406);
 	srand(time(NULL));
 	for (float x = 0.0f; x <= 4.23906f; x += (rand() % 3 + 0)/10.f) {
@@ -43,6 +41,9 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 		}
 	}
 	grass.setPositions(grassPos);
+	treesModels.push_back(new Model("Assets/Tree01.obj"));
+	treesModels.push_back(new Model("Assets/Tree02.obj"));
+	treesModels.push_back(new Model("Assets/Tree03.obj"));
 }
 
 void NaturalScene::Draw(Camera &camera, float time)
@@ -55,47 +56,31 @@ void NaturalScene::Draw(Camera &camera, float time)
 	shader.setMat4Float("view", glm::value_ptr(view));
 	shader.setMat4Float("projection", glm::value_ptr(projection));
 	shader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
+	//TODO: better light setup
 	model.setLightParameters(
-		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.02f, 0.02f, 0.02f));
+		glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	model.setDirLight(lightDir);
 
 	////lights rendering
-	//shaderLight.use();
-	//shaderLight.setMat4Float("view", glm::value_ptr(view));
-	//shaderLight.setMat4Float("projection", glm::value_ptr(projection));
 	model.setLightParameters(glm::vec3(3.0f, 3.0f, 3.0f),
 		glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(3.0f, 3.0f, 3.0f));
 	for (int i = 0; i < NR_NATURAL_POINT_LIGHTS; i++) {
 		model.setPointLight(pointLightPositions[i], i);
-		shaderLight.use();
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, lightSupportPositions[i] + glm::vec3(0.0f, 0.75f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2));
-		shaderLight.setMat4Float("model", glm::value_ptr(model));
-		sphereModel.Draw(shaderLight);
+		//TODO: natural lights setup
 	}
-	//light supports rendering
-	/*model.setMaterial(0.2f, 0.4f, 0.0f, 0.2f);
-	for (int i = 0; i < CORRIDOR_POINT_LIGHTS; i++) {
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, lightSupportPositions[i]);
-		model = glm::rotate(model, lightSupportRotations[i], glm::vec3(0.0f, 1.0f, 0.0f));
-		shader.use();
-		shader.setMat4Float("model", glm::value_ptr(model));
-		torchModel.Draw(shader);
-	}*/
 
 	//Doors rendering
 	doorShader.use();
 	doorShader.setMat4Float("view", glm::value_ptr(view));
 	doorShader.setMat4Float("projection", glm::value_ptr(projection));
 	doorShader.setFloat("time", time);
-	for (auto& door : doors) {
+	for (auto door : doors) {
 		door->Draw(doorShader);
 	}
 
 	//Grass rendering
 	grass.Draw(view, projection, time);
+	
 
 	//room rendering
 	model.setMaterial(0.3f, 0.8f, 0.1f, 0.2f);
@@ -104,6 +89,14 @@ void NaturalScene::Draw(Camera &camera, float time)
 	shader.use();
 	shader.setMat4Float("model", glm::value_ptr(model));
 	roomModel.Draw(shader);
+
+	//trees rendering
+	model = glm::mat4(1.0f);
+	shader.use();
+	shader.setMat4Float("model", glm::value_ptr(model));
+	for (auto& tree : treesModels) {
+		tree->Draw(shader);
+	}
 
 	//skybox rendering
 	skybox.Draw(skyboxShader, view, projection);

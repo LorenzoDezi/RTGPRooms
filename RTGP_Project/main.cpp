@@ -96,6 +96,7 @@ int main() {
 	//Scene setup
 	//Rooms
 	Model roomModel("Assets/rooms2.obj");
+	//Physics setup
 	physicsSimulation.createStaticRigidBodyWithTriangleMesh(roomModel, glm::vec3(), glm::vec3(),
 		glm::vec3(0.0f, 0.0f, 0.0f), 0.5f);
 

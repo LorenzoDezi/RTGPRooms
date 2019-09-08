@@ -35,8 +35,7 @@ private:
 	//Models
 	Model roomModel;
 	Model doorModel;
-	Model torchModel;
-	Model sphereModel;
+	std::vector<Model*> treesModels;
 
 	//Light positions setup
 	glm::vec3 lightSupportPositions[NR_NATURAL_POINT_LIGHTS];
