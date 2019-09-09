@@ -1,6 +1,7 @@
 #pragma once
 #include "Shader.h"
 #include "Model.h"
+#include "TreeModel.h"
 #include "Grass.h"
 #include "Door.h"
 #include "Camera.h"
@@ -26,16 +27,18 @@ private:
 	//Shaders
 	Shader shader;
 	Shader shaderLight;
+	Shader leavesShader;
 	//TODO
 	//Shader shaderGrass;
 	Shader doorShader;
 	Shader skyboxShader;
-	BlinnPhongModel model;
+
+	std::shared_ptr<BlinnPhongModel> model;
 
 	//Models
 	Model roomModel;
 	Model doorModel;
-	std::vector<Model*> treesModels;
+	std::vector<std::shared_ptr<TreeModel>> treesModels;
 
 	//Light positions setup
 	glm::vec3 lightSupportPositions[NR_NATURAL_POINT_LIGHTS];

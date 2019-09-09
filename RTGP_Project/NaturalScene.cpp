@@ -5,7 +5,12 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
-	roomModel(roomModel), treesModels{},
+	leavesShader("Shaders/vertex_phong.glsl", "Shaders/fragment_leaves.glsl"),
+	roomModel(roomModel), treesModels {
+		std::make_shared<TreeModel>("Assets/Tree01.obj"),
+		//std::make_shared<TreeModel>("Assets/Tree02.obj"),
+		//std::make_shared<TreeModel>("Assets/Tree03.obj")
+	},
 	doorModel("Assets/door.obj"), faces{
 	"assets/textures/craterlake_lf.tga",
 	"assets/textures/craterlake_rt.tga",
@@ -30,9 +35,13 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	glm::vec3(-1.60f, 2.75f, -1.0f),
 	glm::vec3(-1.60f, 2.75f, 1.0f) },
 	doors(doors),
-	lightDir(0.0f, -1.0f, 0.0f), model(shader) {
-
-	
+	lightDir(0.0f, -1.0f, 0.0f)
+{
+	std::vector<std::shared_ptr<Shader>> shaders{
+		std::make_shared<Shader>(shader),
+			std::make_shared<Shader>(leavesShader)
+	};
+	model = std::make_shared<BlinnPhongModel>(shaders);
 	glm::vec3 startPos(-6.09046, 0.0, -6.64406);
 	srand(time(NULL));
 	for (float x = 0.0f; x <= 4.23906f; x += (rand() % 3 + 0)/10.f) {
@@ -41,9 +50,7 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 		}
 	}
 	grass.setPositions(grassPos);
-	treesModels.push_back(new Model("Assets/Tree01.obj"));
-	treesModels.push_back(new Model("Assets/Tree02.obj"));
-	treesModels.push_back(new Model("Assets/Tree03.obj"));
+	
 }
 
 void NaturalScene::Draw(Camera &camera, float time)
@@ -57,15 +64,15 @@ void NaturalScene::Draw(Camera &camera, float time)
 	shader.setMat4Float("projection", glm::value_ptr(projection));
 	shader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
 	//TODO: better light setup
-	model.setLightParameters(
+	model->setLightParameters(
 		glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	model.setDirLight(lightDir);
+	model->setDirLight(lightDir);
 
 	////lights rendering
-	model.setLightParameters(glm::vec3(3.0f, 3.0f, 3.0f),
+	model->setLightParameters(glm::vec3(3.0f, 3.0f, 3.0f),
 		glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(3.0f, 3.0f, 3.0f));
 	for (int i = 0; i < NR_NATURAL_POINT_LIGHTS; i++) {
-		model.setPointLight(pointLightPositions[i], i);
+		model->setPointLight(pointLightPositions[i], i);
 		//TODO: natural lights setup
 	}
 
@@ -83,7 +90,7 @@ void NaturalScene::Draw(Camera &camera, float time)
 	
 
 	//room rendering
-	model.setMaterial(0.3f, 0.8f, 0.1f, 0.2f);
+	model->setMaterial(0.3f, 0.8f, 0.1f, 0.2f);
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 	shader.use();
@@ -92,10 +99,15 @@ void NaturalScene::Draw(Camera &camera, float time)
 
 	//trees rendering
 	model = glm::mat4(1.0f);
+	leavesShader.use();
+	leavesShader.setMat4Float("view", glm::value_ptr(view));
+	leavesShader.setMat4Float("projection", glm::value_ptr(projection));
+	leavesShader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
+	leavesShader.setMat4Float("model", glm::value_ptr(model));
 	shader.use();
 	shader.setMat4Float("model", glm::value_ptr(model));
 	for (auto& tree : treesModels) {
-		tree->Draw(shader);
+		tree->Draw(shader, leavesShader);
 	}
 
 	//skybox rendering

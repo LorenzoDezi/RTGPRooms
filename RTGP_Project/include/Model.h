@@ -14,6 +14,8 @@ class Model
 {
 public:
 	/*  Functions   */
+	//DEBUG
+	Model() {};
 	Model(std::string path)
 	{
 		loadModel(path);
@@ -23,14 +25,14 @@ public:
 	std::vector<std::shared_ptr<Mesh>> getMeshes();
 	~Model();
 
-private:
+protected:
 	/*  Model Data  */
 	std::vector<std::shared_ptr<Mesh>> meshes;
 	std::string directory;
 	std::vector<Texture> textures_loaded;
 	/*  Functions   */
 	void loadModel(std::string path);
-	void processNode(aiNode *node, const aiScene *scene);
+	virtual void processNode(aiNode *node, const aiScene *scene);
 	std::shared_ptr<Mesh> processMesh(aiMesh *mesh, const aiScene *scene);
 	std::vector<Texture> loadMaterialTextures(aiMaterial *mat, aiTextureType type,
 		std::string typeName);

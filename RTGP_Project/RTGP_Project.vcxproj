@@ -33,6 +33,7 @@
     <ClCompile Include="RenderQuad.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="TreeModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h" />
@@ -50,12 +51,14 @@
     <ClInclude Include="CorridorScene.h" />
     <ClInclude Include="RenderQuad.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="TreeModel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment_blur.glsl" />
     <None Include="Shaders\fragment_door.glsl" />
     <None Include="Shaders\fragment_hdr.glsl" />
     <None Include="Shaders\fragment_lamp.glsl" />
+    <None Include="Shaders\fragment_leaves.glsl" />
     <None Include="Shaders\fragment_phong.glsl" />
     <None Include="Shaders\fragment_skybox.glsl" />
     <None Include="Shaders\vertex_door.glsl" />

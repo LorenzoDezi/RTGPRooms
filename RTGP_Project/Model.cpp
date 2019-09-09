@@ -52,7 +52,6 @@ void Model::processNode(aiNode * node, const aiScene * scene)
 	{
 		processNode(node->mChildren[i], scene);
 	}
-	//NB: parent-child relationship not used here, maybe you should in your project
 }
 
 std::shared_ptr<Mesh> Model::processMesh(aiMesh * mesh, const aiScene * scene)

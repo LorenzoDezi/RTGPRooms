@@ -31,7 +31,7 @@ CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<
 		glm::vec3(-1.60f, 2.75f, -1.0f),
 		glm::vec3(-1.60f, 2.75f, 1.0f) },
 	doors(doors), 
-	lightDir(0.0f, -1.0f, 0.0f), model(shader) {
+	lightDir(0.0f, -1.0f, 0.0f), model(std::make_shared<Shader>(shader)) {
 
 	
 }

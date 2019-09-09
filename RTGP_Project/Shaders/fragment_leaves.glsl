@@ -1,4 +1,4 @@
-#version 330 core
+﻿#version 330 core
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 BrightColor;
 
@@ -59,6 +59,10 @@ vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir);
 
 
 void main() {
+	//TODO: wind moving leaves - PBR
+	float alpha = texture(material.texture_diffuse, TexCoords).a;
+	if (alpha < 0.3)
+		discard;
 	vec3 norm = vec3(texture(material.texture_normals, TexCoords));
 	norm = normalize(norm * 2.0 - 1.0);
 	norm = normalize(TBN * norm);
@@ -66,7 +70,7 @@ void main() {
 	vec3 result = CalcDirLight(dirLight, norm, viewDir);
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 		result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
-	}	
+	}
 	FragColor = vec4(result, 1.0);
 
 	//Check if the fragment is brighter than a certain threshold (TODO: check it)
@@ -86,7 +90,7 @@ vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, TexCoords))) * light.diffuse * material.Kd;
 	//specular calculation
-	vec3 halfwayDir = normalize(lightDir + viewDir);	
+	vec3 halfwayDir = normalize(lightDir + viewDir);
 	float spec = pow(max(dot(viewDir, halfwayDir), 0.0), material.shininess);
 	vec3 specular = light.specular * spec * vec3(texture(material.texture_specular, TexCoords)) * material.Ks;
 	//directional light contribution

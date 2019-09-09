@@ -60,6 +60,9 @@
     <ClCompile Include="ImageUtility.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="TreeModel.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h">
@@ -107,6 +110,9 @@
     <ClInclude Include="ImageUtility.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="TreeModel.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment_lamp.glsl">
@@ -149,6 +155,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\fragment_grass.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_leaves.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
