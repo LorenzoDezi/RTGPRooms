@@ -8,11 +8,7 @@
 #include "glm/glm.hpp"
 #include "Physics.h"
 #include "Skybox.h"
-#include "BlinnPhongModel.h"
-
-#define NR_NATURAL_POINT_LIGHTS 6
-
-//TODO: Implements the class - now it's a copy of corridor scene
+#include "PBRModel.h"
 
 class NaturalScene : public Scene
 {
@@ -32,7 +28,7 @@ private:
 	Shader doorShader;
 	Shader skyboxShader;
 
-	std::shared_ptr<BlinnPhongModel> model;
+	std::shared_ptr<PBRModel> model;
 
 	//Models
 	Model roomModel;
@@ -41,9 +37,6 @@ private:
 	Model treeLeavesModel;
 
 	//Light positions setup
-	glm::vec3 lightSupportPositions[NR_NATURAL_POINT_LIGHTS];
-	glm::vec3 pointLightPositions[NR_NATURAL_POINT_LIGHTS];
-	float lightSupportRotations[NR_NATURAL_POINT_LIGHTS];
 	std::vector<std::shared_ptr<Door>> doors;
 	glm::vec3 lightDir;
 

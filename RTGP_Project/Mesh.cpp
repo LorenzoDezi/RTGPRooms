@@ -16,23 +16,10 @@ int Mesh::GetVAO()
 
 void Mesh::Draw(Shader &shader)
 {
-	unsigned int diffuseNr = 1;
-	unsigned int specularNr = 1;
-	unsigned int reflectiveNr = 1;
-	unsigned int normalNr = 1;
 	for (unsigned int i = 0; i < textures.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 		std::string number;
 		std::string name = textures[i].type;
-		//using a naming convention for the different texture types
-		if (name == "texture_diffuse")
-			number = std::to_string(diffuseNr++);
-		else if (name == "texture_specular")
-			number = std::to_string(specularNr++);
-		else if (name == "texture_reflective")
-			number = std::to_string(reflectiveNr++);
-		else if (name == "texture_normals")
-			number = std::to_string(normalNr++);
 		shader.setInt("material." + name, i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}

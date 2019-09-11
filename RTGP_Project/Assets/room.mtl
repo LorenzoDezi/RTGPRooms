@@ -18,9 +18,9 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures/concrete_floor_02_diff_2k.jpg
-map_Ks textures/concrete_floor_02_spec_2k.jpg
-map_Bump textures/concrete_floor_02_bump_2k.jpg
+map_Kd textures/concrete_floor_02_diff.jpg
+map_Ks textures/concrete_floor_02_spec.jpg
+map_Bump textures/concrete_floor_02_nor.jpg
 
 
 newmtl floor
@@ -32,9 +32,11 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures/brown_mud_leaves_01_diff_2k.jpg
-map_Ks textures/brown_mud_leaves_01_spec_2k.jpg
-map_Bump textures/brown_mud_leaves_01_bump_2k.jpg
+map_Kd textures/brown_mud_leaves_01_diff.jpg
+map_Ks textures/brown_mud_leaves_01_spec.jpg
+map_d textures/brown_mud_leaves_01_rough.jpg
+map_Ka textures/brown_mud_leaves_01_AO.jpg
+map_Bump textures/brown_mud_leaves_01_nor.jpg
 
 
 newmtl floor_nurbs
@@ -68,9 +70,9 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures/brown_mud_leaves_01_diff_2k.jpg
+map_Kd textures/brown_mud_leaves_01_diff.jpg
 map_Ks textures/brown_mud_leaves_01_spec_2k.jpg
-map_Bump textures/brown_mud_leaves_01_bump_2k.jpg
+map_Bump textures/brown_mud_leaves_01_nor.jpg
 
 newmtl walls_nurbs
 Ns 225.000000
@@ -81,7 +83,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures/brown_mud_leaves_01_diff_2k.jpg
+map_Kd textures/brown_mud_leaves_01_diff.jpg
 map_Ks textures/brown_mud_leaves_01_spec_2k.jpg
 
 newmtl walls_toon
@@ -93,5 +95,5 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures/brown_mud_leaves_01_diff_2k.jpg
+map_Kd textures/brown_mud_leaves_01_diff.jpg
 map_Ks textures/brown_mud_leaves_01_spec_2k.jpg
