@@ -5,12 +5,9 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
-	leavesShader("Shaders/vertex_phong.glsl", "Shaders/fragment_leaves.glsl"),
-	roomModel(roomModel), treesModels {
-		std::make_shared<TreeModel>("Assets/Tree01.obj"),
-		//std::make_shared<TreeModel>("Assets/Tree02.obj"),
-		//std::make_shared<TreeModel>("Assets/Tree03.obj")
-	},
+	leavesShader("Shaders/vertex_leaves.glsl", "Shaders/fragment_leaves.glsl"),
+	roomModel(roomModel), treeTrunkModel("Assets/TreeTrunk.obj"),
+	treeLeavesModel("Assets/TreeLeaves.obj"),
 	doorModel("Assets/door.obj"), faces{
 	"assets/textures/craterlake_lf.tga",
 	"assets/textures/craterlake_rt.tga",
@@ -99,16 +96,17 @@ void NaturalScene::Draw(Camera &camera, float time)
 
 	//trees rendering
 	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(-4.0f, 0.3f, 0.0f));
 	leavesShader.use();
 	leavesShader.setMat4Float("view", glm::value_ptr(view));
 	leavesShader.setMat4Float("projection", glm::value_ptr(projection));
 	leavesShader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
 	leavesShader.setMat4Float("model", glm::value_ptr(model));
+	leavesShader.setFloat("time", time);
+	treeLeavesModel.Draw(leavesShader);
 	shader.use();
 	shader.setMat4Float("model", glm::value_ptr(model));
-	for (auto& tree : treesModels) {
-		tree->Draw(shader, leavesShader);
-	}
+	treeTrunkModel.Draw(shader);
 
 	//skybox rendering
 	skybox.Draw(skyboxShader, view, projection);

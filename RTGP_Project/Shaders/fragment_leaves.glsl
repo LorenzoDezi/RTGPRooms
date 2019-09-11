@@ -61,7 +61,7 @@ vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir);
 void main() {
 	//TODO: wind moving leaves - PBR
 	float alpha = texture(material.texture_diffuse, TexCoords).a;
-	if (alpha < 0.3)
+	if (alpha < 0.8)
 		discard;
 	vec3 norm = vec3(texture(material.texture_normals, TexCoords));
 	norm = normalize(norm * 2.0 - 1.0);

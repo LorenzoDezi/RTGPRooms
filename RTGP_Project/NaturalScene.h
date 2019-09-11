@@ -1,7 +1,6 @@
 #pragma once
 #include "Shader.h"
 #include "Model.h"
-#include "TreeModel.h"
 #include "Grass.h"
 #include "Door.h"
 #include "Camera.h"
@@ -38,7 +37,8 @@ private:
 	//Models
 	Model roomModel;
 	Model doorModel;
-	std::vector<std::shared_ptr<TreeModel>> treesModels;
+	Model treeTrunkModel;
+	Model treeLeavesModel;
 
 	//Light positions setup
 	glm::vec3 lightSupportPositions[NR_NATURAL_POINT_LIGHTS];

@@ -33,7 +33,6 @@
     <ClCompile Include="RenderQuad.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
-    <ClCompile Include="TreeModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h" />
@@ -51,7 +50,6 @@
     <ClInclude Include="CorridorScene.h" />
     <ClInclude Include="RenderQuad.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="TreeModel.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment_blur.glsl" />
@@ -67,6 +65,7 @@
     <None Include="Shaders\vertex_grass.glsl" />
     <None Include="Shaders\vertex_hdr.glsl" />
     <None Include="Shaders\vertex_lamp.glsl" />
+    <None Include="Shaders\vertex_leaves.glsl" />
     <None Include="Shaders\vertex_phong.glsl" />
     <None Include="Shaders\vertex_skybox.glsl" />
   </ItemGroup>
