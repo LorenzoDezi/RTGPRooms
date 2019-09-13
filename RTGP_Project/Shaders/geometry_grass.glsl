@@ -6,6 +6,7 @@ layout(max_vertices = 12) out;
 
 out vec2 TexCoord;
 out vec3 FragPos;
+out vec4 LightSpaceFragPos;
 out vec3 Normal;
 out vec4 ViewDir;
 out float ColorWeight;
@@ -15,6 +16,7 @@ in mat4 modelMatrix[];
 flat in int texIndex[];
 
 uniform float time;
+uniform mat4 lightSpaceMatrix;
 uniform mat4 projMatrix;
 uniform mat4 viewMatrix;
 
@@ -104,6 +106,7 @@ void main()
 		gl_Position = mMVP*vec4(topLeftPos, 1.0);
 		TexCoord = vec2(0.0, 1.0);
 		FragPos = topLeftPos;
+		LightSpaceFragPos = lightSpaceMatrix * modelMat * vec4(topLeftPos, 1.0);
 		ColorWeight = 0.8;
 		TexIndex = texIndex[0];
 		EmitVertex();
@@ -113,6 +116,7 @@ void main()
 		gl_Position = mMVP*vec4(bottomLeftPos, 1.0);
 		TexCoord = vec2(0.0, 0.0);
 		FragPos = bottomLeftPos;
+		LightSpaceFragPos = lightSpaceMatrix * modelMat * vec4(bottomLeftPos, 1.0);
 		ColorWeight = 0.3;
 		TexIndex = texIndex[0];
 		EmitVertex();
@@ -123,6 +127,7 @@ void main()
 		gl_Position = mMVP*vec4(topRightPos, 1.0);
 		TexCoord = vec2(1.0, 1.0);
 		FragPos = topRightPos;
+		LightSpaceFragPos = lightSpaceMatrix * modelMat * vec4(topRightPos, 1.0);
 		ColorWeight = 0.8;
 		TexIndex = texIndex[0];
 		EmitVertex();
@@ -132,6 +137,7 @@ void main()
 		gl_Position = mMVP*vec4(bottomRightPos, 1.0);
 		TexCoord = vec2(1.0, 0.0);
 		FragPos = bottomRightPos;
+		LightSpaceFragPos = lightSpaceMatrix * modelMat * vec4(bottomRightPos, 1.0);
 		TexIndex = texIndex[0];
 		ColorWeight = 0.3;
 		EmitVertex();

@@ -29,6 +29,14 @@ void PBRModel::setDirLight(glm::vec3 direction)
 	nr_dir_lights++;
 }
 
+void PBRModel::setLightSpaceMatrix(glm::mat4 lightSpaceMatrix)
+{
+	for (auto& shader : lightingShaders) {
+		shader->use();
+		shader->setMat4Float("lightSpaceMatrix", glm::value_ptr(lightSpaceMatrix));
+	}
+}
+
 PBRModel::~PBRModel()
 {
 }

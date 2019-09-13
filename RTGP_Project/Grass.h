@@ -16,7 +16,7 @@ typedef struct {
 	GLint textureIndex;
 } GrassInput;
 
-class Grass
+class Grass  : public DepthMapped
 {
 public:
 	Grass();
@@ -31,6 +31,7 @@ private:
 private:
 	Shader grassShader;
 	GLuint VBO, VAO, instancingVBO;
+	GLuint depthMap;
 	GLuint grassTextures[NR_GRASS_TEXTURES];
 	GLuint amount;
 

@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Mesh.h"
 #include "ImageUtility.h"
+#include "DepthMapped.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -10,7 +11,7 @@
 #include <vector>
 
 
-class Model
+class Model : public DepthMapped
 {
 public:
 	/*  Functions   */

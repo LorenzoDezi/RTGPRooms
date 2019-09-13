@@ -72,12 +72,14 @@ void Grass::setPositions(const std::vector<glm::vec3> &positions)
 void Grass::Draw(Camera &camera, const glm::mat4 &view, const glm::mat4 &projection, float time)
 {
 	grassShader.use();
+	bindDepthMap(grassShader);
 	grassShader.setMat4Float("projMatrix", glm::value_ptr(projection));
 	grassShader.setMat4Float("viewMatrix", glm::value_ptr(view));
 	grassShader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
 	grassShader.setFloat("time", time);
+	//The first texture bound is assigned to the depth map
 	for (int i = 0; i < 9; i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
+		glActiveTexture(GL_TEXTURE1 + i);
 		glBindTexture(GL_TEXTURE_2D, grassTextures[i]);
 	}
 	glBindVertexArray(VAO);
@@ -103,8 +105,9 @@ Grass::~Grass()
 void Grass::initTextures()
 {
 	std::string baseName = "Grass_Blade_";
+	//The first texture bound is assigned to the depth map
 	for (int i = 0; i < NR_GRASS_TEXTURES; i++) {
 		grassTextures[i] = ImageUtility::TextureFromFile((baseName + std::to_string(i) + ".png").c_str(), "Assets/textures/grass");
-		grassShader.setInt("materials[" + std::to_string(i) + "].tex", i);
+		grassShader.setInt("materials[" + std::to_string(i) + "].tex", i+1);
 	}
 }

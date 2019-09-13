@@ -63,6 +63,9 @@
     <ClCompile Include="PBRModel.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="DepthMapped.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h">
@@ -111,6 +114,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="PBRModel.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthMapped.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
@@ -164,6 +170,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\fragment_pbr.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertex_depth.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_depth.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

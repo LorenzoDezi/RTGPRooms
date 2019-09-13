@@ -16,11 +16,12 @@ int Mesh::GetVAO()
 
 void Mesh::Draw(Shader &shader)
 {
+	//The first texture bound is assigned to the depth map
 	for (unsigned int i = 0; i < textures.size(); i++) {
-		glActiveTexture(GL_TEXTURE0 + i);
+		glActiveTexture(GL_TEXTURE1 + i);
 		std::string number;
 		std::string name = textures[i].type;
-		shader.setInt("material." + name, i);
+		shader.setInt("material." + name, i + 1);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);

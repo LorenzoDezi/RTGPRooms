@@ -1,7 +1,9 @@
 #include "NaturalScene.h"
 
-NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors) :
+NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors
+	, float screenWidth, float screenHeight) :
 	shader("Shaders/vertex_phong.glsl", "Shaders/fragment_pbr.glsl"),
+	depthShader("Shaders/vertex_depth.glsl", "Shaders/fragment_depth.glsl"),
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
@@ -16,6 +18,8 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	"assets/textures/craterlake_ft.tga",
 	"assets/textures/craterlake_bk.tga" },
 	skybox(faces),
+	screenHeight(screenHeight),
+	screenWidth(screenWidth),
 	doors(doors)
 {
 	std::vector<std::shared_ptr<Shader>> shaders {
@@ -33,7 +37,12 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 		}
 	}
 	grass.setPositions(grassPos);
-	
+	buildShadowMap();
+	model->setLightSpaceMatrix(lightSpaceMatrix);
+	grass.setDepthMap(depthMap);
+	treeLeavesModel.setDepthMap(depthMap);
+	treeTrunkModel.setDepthMap(depthMap);
+	this->roomModel.setDepthMap(depthMap);
 }
 
 void NaturalScene::Draw(Camera &camera, float time)
@@ -91,6 +100,19 @@ void NaturalScene::Draw(Camera &camera, float time)
 	skybox.Draw(skyboxShader, view, projection);
 }
 
+void NaturalScene::DrawSceneDepth()
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	depthShader.use();
+	depthShader.setMat4Float("model", glm::value_ptr(model));
+	depthShader.setMat4Float("lightSpaceMatrix", glm::value_ptr(lightSpaceMatrix));
+	roomModel.Draw(depthShader);
+	model = glm::translate(model, glm::vec3(-4.0f, 0.3f, 0.0f));
+	depthShader.setMat4Float("model", glm::value_ptr(model));
+	treeLeavesModel.Draw(depthShader);
+	treeTrunkModel.Draw(depthShader);
+}
+
 bool NaturalScene::hasBloom()
 {
 	return false;
@@ -99,4 +121,43 @@ bool NaturalScene::hasBloom()
 
 NaturalScene::~NaturalScene()
 {
+	//TODO: delete stuff
+}
+
+void NaturalScene::buildShadowMap()
+{
+	shadowMapFBO;
+	glGenFramebuffers(1, &shadowMapFBO);
+	//Texture building
+	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+		SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	//TODO Render scene with proper shader
+	float near_plane = 1.0f, far_plane = 100.0f;
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, 
+		-10.0f, 10.0f, near_plane, far_plane);
+	glm::vec3 lightPosition(-4.5f, 60.5f, -60.7f);
+	glm::mat4 lightView = glm::lookAt(lightPosition,
+		glm::vec3(-4.0f, 0.3f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+	lightSpaceMatrix = lightProjection * lightView;
+	DrawSceneDepth();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//Resetting viewPort and buffers
+	glViewport(0, 0, screenWidth, screenHeight);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

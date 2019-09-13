@@ -13,14 +13,22 @@
 class NaturalScene : public Scene
 {
 public:
-	NaturalScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors);
+	NaturalScene(Physics &simulation, Model &roomModel, 
+		std::vector<std::shared_ptr<Door>> &doors, float screenWidth, float screenHeight);
 	void Draw(Camera &camera, float time);
+	void DrawSceneDepth();
 	bool hasBloom();
 	~NaturalScene();
 
 private:
+	void buildShadowMap();
+	//depth map
+	GLuint depthMap;
+	GLuint shadowMapFBO;
+	glm::mat4 lightSpaceMatrix;
 	//Shaders
 	Shader shader;
+	Shader depthShader;
 	Shader shaderLight;
 	Shader leavesShader;
 	//TODO
@@ -45,6 +53,10 @@ private:
 	//Skybox setup
 	std::string faces[6];
 	Skybox skybox;
+
+	//Screen width and height
+	const float screenWidth;
+	const float screenHeight;
 
 };
 

@@ -1,5 +1,7 @@
 #pragma once
 #include "LightingModel.h"
+#include <glm/gtc/type_ptr.hpp>
+
 class PBRModel : public LightingModel
 {
 public:
@@ -11,6 +13,7 @@ public:
 	void setPointLight(glm::vec3 position, int i);
 	void setLightColor(glm::vec3 color);
 	void setDirLight(glm::vec3 direction);
+	void setLightSpaceMatrix(glm::mat4 lightSpaceMatrix);
 	~PBRModel();
 
 private:

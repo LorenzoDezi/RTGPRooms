@@ -2,6 +2,7 @@
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 BrightColor;
 
+
 struct Material {
 	sampler2D texture_diffuse;
 	sampler2D texture_specular;

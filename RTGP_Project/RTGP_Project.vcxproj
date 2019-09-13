@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="BlinnPhongModel.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="DepthMapped.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Grass.cpp" />
     <ClCompile Include="ImageUtility.cpp" />
@@ -37,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h" />
+    <ClInclude Include="DepthMapped.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Grass.h" />
     <ClInclude Include="ImageUtility.h" />
@@ -55,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment_blur.glsl" />
+    <None Include="Shaders\fragment_depth.glsl" />
     <None Include="Shaders\fragment_door.glsl" />
     <None Include="Shaders\fragment_hdr.glsl" />
     <None Include="Shaders\fragment_lamp.glsl" />
@@ -62,6 +65,7 @@
     <None Include="Shaders\fragment_pbr.glsl" />
     <None Include="Shaders\fragment_phong.glsl" />
     <None Include="Shaders\fragment_skybox.glsl" />
+    <None Include="Shaders\vertex_depth.glsl" />
     <None Include="Shaders\vertex_door.glsl" />
     <None Include="Shaders\fragment_grass.glsl" />
     <None Include="Shaders\geometry_grass.glsl" />
