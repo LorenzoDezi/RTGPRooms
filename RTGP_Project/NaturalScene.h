@@ -36,9 +36,7 @@ private:
 	Model treeTrunkModel;
 	Model treeLeavesModel;
 
-	//Light positions setup
 	std::vector<std::shared_ptr<Door>> doors;
-	glm::vec3 lightDir;
 
 	//Grass setup
 	Grass grass;

@@ -23,8 +23,10 @@ in mat3 TBN;
 out vec4 FragColor;
 
 uniform vec3 viewPos;
+uniform float textureScale;
 uniform Material material;
-uniform DirLight dirLight;
+#define NR_DIR_LIGHTS 2
+uniform DirLight dirLight[NR_DIR_LIGHTS];
 
 const float PI = 3.14159265359;
 
@@ -37,18 +39,21 @@ vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir, vec3 albedo);
 
 void main()
 {
-	vec3 N = vec3(texture(material.texture_normals, TexCoords));
+	vec2 texCoords = vec2(TexCoords.x * textureScale, -TexCoords.y * textureScale);
+	vec3 N = vec3(texture(material.texture_normals, texCoords));
 	N = normalize(N * 2.0 - 1.0);
 	N = normalize(TBN * N);
 	vec3 V = normalize(viewPos - FragPos);
-	vec3 albedo = vec3(texture(material.texture_diffuse, TexCoords));
-	vec3 Lo = CalcDirLight(dirLight, N, V, albedo);
-	float ao = texture(material.texture_ao, TexCoords).r;
+	vec3 albedo = vec3(texture(material.texture_diffuse, texCoords));
+	vec3 Lo = vec3(0.0, 0.0, 0.0);
+	for (int i = 0; i < NR_DIR_LIGHTS; i++) {
+		Lo += CalcDirLight(dirLight[i], N, V, albedo);
+	}
+	float ao = texture(material.texture_ao, texCoords).r;
 	vec3 ambient = vec3(0.03) * albedo * ao;
-	vec3 color = ambient + Lo;
+	vec3 color = Lo + ambient;
 	//Tonemapping with reinhart operator
 	color = color / (color + vec3(1.0));
-	color = pow(color, vec3(1.0 / 2.2));
 	FragColor = vec4(color, 1.0);
 }
 
@@ -94,6 +99,7 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 albedo) {
 
+	vec2 texCoords = vec2(TexCoords.x * textureScale, -TexCoords.y * textureScale);
 	vec3 L = normalize(light.direction);
 	vec3 H = normalize(V + L);
 	vec3 radiance = light.color;
@@ -103,9 +109,10 @@ vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 albedo) {
 	F0 = mix(F0, albedo, material.metallic);
 	//Calculating the various components of the rendering equation
 	vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-	float roughness = texture(material.texture_roughness, TexCoords).r;
+	float roughness = texture(material.texture_roughness, texCoords).r;
 	float NDF = DistributionGGX(N, H, roughness);
 	float G = GeometrySmith(N, V, L, roughness);
+
 	//Actually using those components
 	vec3 numerator = NDF * G * F;
 	float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);

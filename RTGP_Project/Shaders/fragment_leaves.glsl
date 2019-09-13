@@ -1,118 +1,131 @@
 ﻿#version 330 core
-layout(location = 0) out vec4 FragColor;
-layout(location = 1) out vec4 BrightColor;
 
 struct Material {
 	sampler2D texture_diffuse;
 	sampler2D texture_specular;
 	sampler2D texture_normals;
-	float shininess;
-	float Ka;
-	float Kd;
-	float Ks;
+	float metallic;
+	sampler2D texture_roughness;
+	sampler2D texture_ao;
 };
 
 struct DirLight {
 	vec3 direction;
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	vec3 color;
 };
 
-struct PointLight {
-	vec3 position;
-	float constant;
-	float linear;
-	float quadratic;
-
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-};
-
-struct SpotLight {
-	vec3 position;
-	vec3 direction;
-	float cutOff;
-	float outerCutOff;
-
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-};
-
-in vec3 Normal;
-in vec3 FragPos;
-in mat3 TBN;
 in vec2 TexCoords;
+in vec3 FragPos;
+in vec3 Normal;
+in mat3 TBN;
 
-uniform vec3 objectColor;
+out vec4 FragColor;
+
 uniform vec3 viewPos;
 uniform Material material;
+#define NR_DIR_LIGHTS 2
+uniform DirLight dirLight[NR_DIR_LIGHTS];
 
-#define NR_POINT_LIGHTS 6
-uniform PointLight pointLights[NR_POINT_LIGHTS];
-uniform DirLight dirLight;
+const float PI = 3.14159265359;
 
-vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir);
-vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir);
-
+float DistributionGGX(vec3 N, vec3 H, float roughness);
+float GeometrySchlickGGX(float NdotV, float roughness);
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
+vec3 fresnelSchlick(float cosTheta, vec3 F0);
+vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir, vec3 albedo);
 
 void main() {
-	//TODO: wind moving leaves - PBR
 	float alpha = texture(material.texture_diffuse, TexCoords).a;
-	if (alpha < 0.8)
+	if (alpha < 0.6)
 		discard;
-	vec3 norm = vec3(texture(material.texture_normals, TexCoords));
+	//TODO If time, do the illumination in some way
+	/*vec3 norm = vec3(texture(material.texture_normals, TexCoords));
 	norm = normalize(norm * 2.0 - 1.0);
 	norm = normalize(TBN * norm);
 	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 result = CalcDirLight(dirLight, norm, viewDir);
-	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-		result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+	vec3 albedo = vec3(texture(material.texture_diffuse, TexCoords));
+	vec3 Lo = vec3(0.0, 0.0, 0.0);
+	for (int i = 0; i < NR_DIR_LIGHTS; i++) {
+		Lo += CalcDirLight(dirLight[i], norm, viewDir, albedo);
 	}
-	FragColor = vec4(result, 1.0);
-
-	//Check if the fragment is brighter than a certain threshold (TODO: check it)
-	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-	if (brightness >= 3.0)
-		BrightColor = vec4(FragColor.rgb, 1.0);
-	else
-		BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
-
+	vec3 ambient = vec3(0.03) * albedo;
+	vec3 color = ambient + Lo;*/
+	vec3 albedo = vec3(texture(material.texture_diffuse, TexCoords));
+	vec3 color = albedo;
+	//Tonemapping with reinhart operator
+	color = color / (color + vec3(1.0));
+	FragColor = vec4(color, 1.0);
 }
 
-vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
-	vec3 lightDir = normalize(-light.direction);
-	//Ambient calculation
-	vec3 ambient = vec3(texture(material.texture_diffuse, TexCoords)) * light.ambient * material.Ka;
-	//diffuse calculation
-	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, TexCoords))) * light.diffuse * material.Kd;
-	//specular calculation
-	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(viewDir, halfwayDir), 0.0), material.shininess);
-	vec3 specular = light.specular * spec * vec3(texture(material.texture_specular, TexCoords)) * material.Ks;
-	//directional light contribution
-	return specular + diffuse + ambient;
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
-	vec3 lightDir = normalize(light.position - fragPos);
-	float distance = length(light.position - fragPos);
-	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
-	//Ambient calculation
-	vec3 ambient = vec3(texture(material.texture_diffuse, TexCoords)) * light.ambient * attenuation * material.Ka;
-	//diffuse calculation
-	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, TexCoords))) * light.diffuse * attenuation * material.Kd;
-	//specular calculation
-	vec3 reflectDir = reflect(-lightDir, norm);
-	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-	//The specular map is saved in grayscale, but without this its value will be read as GL_RED
-	vec3 specularTexture = vec3(texture(material.texture_specular, TexCoords));
-	vec3 specular = light.specular * spec * vec3(specularTexture.r, specularTexture.r, specularTexture.r) * attenuation * material.Ks;
-	//point light contribution
-	return specular + diffuse + ambient;
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+	float a = roughness * roughness;
+	float a2 = a * a;
+	float NdotH = max(dot(N, H), 0.0);
+	float NdotH2 = NdotH * NdotH;
+
+	float num = a2;
+	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+	denom = PI * denom * denom;
+
+	return num / denom;
 }
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+	float r = (roughness + 1.0);
+	float k = (r*r) / 8.0;
+
+	float num = NdotV;
+	float denom = NdotV * (1.0 - k) + k;
+
+	return num / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+	float NdotV = max(dot(N, V), 0.0);
+	float NdotL = max(dot(N, L), 0.0);
+	float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+	float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+	return ggx1 * ggx2;
+}
+
+vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 albedo) {
+
+	vec3 L = normalize(light.direction);
+	vec3 H = normalize(V + L);
+	vec3 radiance = light.color;
+	//For non metallic surface, F0 for fresnel is always 0.04. Otherwise we mix
+	//with albedo to tint the reflectance.
+	vec3 F0 = vec3(0.04, 0.04, 0.04);
+	F0 = mix(F0, albedo, material.metallic);
+	//Calculating the various components of the rendering equation
+	vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+	float roughness = 0.0;
+	float NDF = DistributionGGX(N, H, roughness);
+	float G = GeometrySmith(N, V, L, roughness);
+	//Actually using those components
+	vec3 numerator = NDF * G * F;
+	float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
+	vec3 specular = numerator / max(denominator, 0.001);
+	//F directly corresponds to Ks and for the law of energy conservation, we
+	//can easily find Kd. We than weight this value with the metallic value
+	//(no diffuse if fully metallic)
+	vec3 kS = F;
+	vec3 kD = vec3(1.0) - kS;
+	kD *= 1.0 - material.metallic;
+	//Summing the contribution of the light
+	float NdotL = max(dot(N, L), 0.0);
+	vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
+	return Lo;
+}
+
+
 

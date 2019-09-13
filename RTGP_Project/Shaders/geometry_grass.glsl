@@ -5,8 +5,10 @@ layout(triangle_strip) out;
 layout(max_vertices = 12) out;
 
 out vec2 TexCoord;
-out vec3 WorldPos;
-out vec4 EyeSpacePos;
+out vec3 FragPos;
+out vec3 Normal;
+out vec4 ViewDir;
+out float ColorWeight;
 flat out int TexIndex;
 
 in mat4 modelMatrix[];
@@ -53,10 +55,10 @@ int randomInt(int min, int max)
 void main()
 {
 	mat4 modelMat = modelMatrix[0];
-	mat4 mMV = viewMatrix* modelMat;
 	mat4 mMVP = projMatrix*viewMatrix*modelMat;
 	
 	vec3 GrassFieldPos = gl_in[0].gl_Position.xyz;
+	Normal = vec3(0.0, 1.0, 0.0);
 
 	float PIover180 = 3.1415/180.0;
 	//Vector basis to generate the patch quads
@@ -78,7 +80,6 @@ void main()
 	{
 		// Grass patch top left vertex
 		vec3 baseDirRotated = (rotationMatrix(vec3(0, 1, 0), sin(time*0.7)*0.1) * vec4(baseDir[i], 1.0)).xyz;
-
 		//Changing the seed of the random function at every quad
 		LocalSeed = GrassFieldPos*float(i);
 		//Also the x start position of the quad is changed randomly...
@@ -102,18 +103,18 @@ void main()
 		topLeftPos.y += grassPatchHeight;
 		gl_Position = mMVP*vec4(topLeftPos, 1.0);
 		TexCoord = vec2(0.0, 1.0);
-		WorldPos = topLeftPos;
+		FragPos = topLeftPos;
+		ColorWeight = 0.8;
 		TexIndex = texIndex[0];
-		EyeSpacePos = mMV*vec4(topLeftPos, 1.0);
 		EmitVertex();
 		
 		// Grass patch bottom left vertex
 		vec3 bottomLeftPos = GrassFieldPos - baseDir[i]*grassPatchSize*0.5;  
 		gl_Position = mMVP*vec4(bottomLeftPos, 1.0);
 		TexCoord = vec2(0.0, 0.0);
-		WorldPos = bottomLeftPos;
+		FragPos = bottomLeftPos;
+		ColorWeight = 0.3;
 		TexIndex = texIndex[0];
-		EyeSpacePos = mMV*vec4(bottomLeftPos, 1.0);
 		EmitVertex();
 		                               
 		// Grass patch top right vertex
@@ -121,18 +122,18 @@ void main()
 		topRightPos.y += grassPatchHeight;  
 		gl_Position = mMVP*vec4(topRightPos, 1.0);
 		TexCoord = vec2(1.0, 1.0);
-		WorldPos = topRightPos;
+		FragPos = topRightPos;
+		ColorWeight = 0.8;
 		TexIndex = texIndex[0];
-		EyeSpacePos = mMV*vec4(topRightPos, 1.0);
 		EmitVertex();
 		
 		// Grass patch bottom right vertex
 		vec3 bottomRightPos = GrassFieldPos + baseDir[i]*grassPatchSize*0.5;  
 		gl_Position = mMVP*vec4(bottomRightPos, 1.0);
 		TexCoord = vec2(1.0, 0.0);
-		WorldPos = bottomRightPos;
+		FragPos = bottomRightPos;
 		TexIndex = texIndex[0];
-		EyeSpacePos = mMV*vec4(bottomRightPos, 1.0);
+		ColorWeight = 0.3;
 		EmitVertex();
 		
 		EndPrimitive();

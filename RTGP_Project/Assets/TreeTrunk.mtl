@@ -10,4 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 0.000000
 illum 6
-map_Kd textures/bark_0021.jpg
+map_Kd textures/bark_brown_02_diff.jpg
+map_d textures/bark_brown_02_rough.jpg
+map_Ka textures/bark_brown_02_ao.jpg
+map_Bump textures/bark_brown_02_nor.jpg

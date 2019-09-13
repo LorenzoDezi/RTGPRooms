@@ -16,12 +16,12 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	"assets/textures/craterlake_ft.tga",
 	"assets/textures/craterlake_bk.tga" },
 	skybox(faces),
-	doors(doors),
-	lightDir(0.3f, -0.5f, 0.5f)
+	doors(doors)
 {
 	std::vector<std::shared_ptr<Shader>> shaders {
 		std::make_shared<Shader>(shader),
-			std::make_shared<Shader>(leavesShader)
+			std::make_shared<Shader>(leavesShader),
+			grass.getShader()
 	};
 	model = std::make_shared<PBRModel>(shaders);
 	model->setMetallic(0.0f);
@@ -46,8 +46,11 @@ void NaturalScene::Draw(Camera &camera, float time)
 	shader.setMat4Float("view", glm::value_ptr(view));
 	shader.setMat4Float("projection", glm::value_ptr(projection));
 	shader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
-	model->setLightColor(glm::vec3(2.0f, 2.0f, 2.0f));
-	model->setDirLight(lightDir);
+	model->setLightColor(glm::vec3(8.5f, 8.5f, 8.5f));
+	model->setDirLight(glm::vec3(0.3f, -0.5f, 0.5f));
+	model->setLightColor(glm::vec3(3.5f, 3.5f, 3.5f));
+	model->setDirLight(glm::vec3(-0.3f, -0.5f, -0.5f));
+
 
 	//Doors rendering
 	doorShader.use();
@@ -59,13 +62,14 @@ void NaturalScene::Draw(Camera &camera, float time)
 	}
 
 	//Grass rendering
-	grass.Draw(view, projection, time);
+	grass.Draw(camera, view, projection, time);
 	
 	//room rendering
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 	shader.use();
 	shader.setMat4Float("model", glm::value_ptr(model));
+	shader.setFloat("textureScale", 4.0f);
 	roomModel.Draw(shader);
 
 	//trees rendering
@@ -79,6 +83,7 @@ void NaturalScene::Draw(Camera &camera, float time)
 	leavesShader.setFloat("time", time);
 	treeLeavesModel.Draw(leavesShader);
 	shader.use();
+	shader.setFloat("textureScale", 1.0f);
 	shader.setMat4Float("model", glm::value_ptr(model));
 	treeTrunkModel.Draw(shader);
 

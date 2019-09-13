@@ -23,9 +23,10 @@ void PBRModel::setDirLight(glm::vec3 direction)
 {
 	for (auto& shader : lightingShaders) {
 		shader->use();
-		shader->setVec3Float("dirLight.direction", direction.x, direction.y, direction.z);
-		shader->setVec3Float("dirLight.color", color.x, color.y, color.z);
+		shader->setVec3Float("dirLight[" + std::to_string(nr_dir_lights) + "].direction", direction.x, direction.y, direction.z);
+		shader->setVec3Float("dirLight[" + std::to_string(nr_dir_lights) + "].color", color.x, color.y, color.z);
 	}
+	nr_dir_lights++;
 }
 
 PBRModel::~PBRModel()

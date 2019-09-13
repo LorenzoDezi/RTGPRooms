@@ -119,6 +119,9 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh * mesh, const aiScene * scene)
 			std::vector<Texture> normalMaps = loadMaterialTextures(material,
 				aiTextureType_HEIGHT, "texture_normals");
 			textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
+			std::vector<Texture> displacementMaps = loadMaterialTextures(material,
+				aiTextureType_DISPLACEMENT, "texture_displacement");
+			textures.insert(textures.end(), displacementMaps.begin(), displacementMaps.end());
 			//Using alpha textures to store roughness textures
 			std::vector<Texture> roughnessMaps = loadMaterialTextures(material,
 				aiTextureType_OPACITY, "texture_roughness");
@@ -140,7 +143,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		//DEBUG
-		if (type == aiTextureType_AMBIENT || type == aiTextureType_OPACITY)
+		if (type == aiTextureType_DISPLACEMENT)
 			std::cout << str.C_Str() << std::endl;
 		bool skip = false;
 		for (unsigned int j = 0; j < textures_loaded.size(); j++)

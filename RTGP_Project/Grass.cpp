@@ -19,7 +19,9 @@ Grass::Grass() : grassShader(
 	glBindVertexArray(0);
 
 	//Texture setup
+	grassShader.use();
 	initTextures();
+	grassShader.setFloat("roughness", 1.0);
 	grassShader.setFloat("alphaTest", 0.01f);
 	grassShader.setFloat("alphaMultiplier", 0.2f);
 }
@@ -67,11 +69,12 @@ void Grass::setPositions(const std::vector<glm::vec3> &positions)
 	glBindVertexArray(0);
 }
 
-void Grass::Draw(const glm::mat4 &view, const glm::mat4 &projection, float time)
+void Grass::Draw(Camera &camera, const glm::mat4 &view, const glm::mat4 &projection, float time)
 {
 	grassShader.use();
 	grassShader.setMat4Float("projMatrix", glm::value_ptr(projection));
 	grassShader.setMat4Float("viewMatrix", glm::value_ptr(view));
+	grassShader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
 	grassShader.setFloat("time", time);
 	for (int i = 0; i < 9; i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
@@ -80,6 +83,11 @@ void Grass::Draw(const glm::mat4 &view, const glm::mat4 &projection, float time)
 	glBindVertexArray(VAO);
 	glDrawArraysInstanced(GL_POINTS, 0, 1, amount);
 	glBindVertexArray(0);
+}
+
+std::shared_ptr<Shader> Grass::getShader()
+{
+	return std::make_shared<Shader>(grassShader);
 }
 
 
@@ -95,9 +103,8 @@ Grass::~Grass()
 void Grass::initTextures()
 {
 	std::string baseName = "Grass_Blade_";
-	grassShader.use();
 	for (int i = 0; i < NR_GRASS_TEXTURES; i++) {
 		grassTextures[i] = ImageUtility::TextureFromFile((baseName + std::to_string(i) + ".png").c_str(), "Assets/textures/grass");
-		grassShader.setInt("texture" + std::to_string(i), i);
+		grassShader.setInt("materials[" + std::to_string(i) + "].tex", i);
 	}
 }
