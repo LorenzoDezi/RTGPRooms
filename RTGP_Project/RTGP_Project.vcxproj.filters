@@ -178,5 +178,8 @@
     <None Include="Shaders\fragment_depth.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\vertex_pbr.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

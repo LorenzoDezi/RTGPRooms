@@ -73,6 +73,7 @@
     <None Include="Shaders\vertex_hdr.glsl" />
     <None Include="Shaders\vertex_lamp.glsl" />
     <None Include="Shaders\vertex_leaves.glsl" />
+    <None Include="Shaders\vertex_pbr.glsl" />
     <None Include="Shaders\vertex_phong.glsl" />
     <None Include="Shaders\vertex_skybox.glsl" />
   </ItemGroup>

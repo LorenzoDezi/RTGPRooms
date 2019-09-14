@@ -2,7 +2,7 @@
 
 NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors
 	, float screenWidth, float screenHeight) :
-	shader("Shaders/vertex_phong.glsl", "Shaders/fragment_pbr.glsl"),
+	shader("Shaders/vertex_pbr.glsl", "Shaders/fragment_pbr.glsl"),
 	depthShader("Shaders/vertex_depth.glsl", "Shaders/fragment_depth.glsl"),
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
@@ -83,7 +83,7 @@ void NaturalScene::Draw(Camera &camera, float time)
 
 	//trees rendering
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(-4.0f, 0.3f, 0.0f));
+	model = glm::translate(model, glm::vec3(-4.0f, 0.01f, 0.0f));
 	leavesShader.use();
 	leavesShader.setMat4Float("view", glm::value_ptr(view));
 	leavesShader.setMat4Float("projection", glm::value_ptr(projection));
@@ -109,8 +109,11 @@ void NaturalScene::DrawSceneDepth()
 	roomModel.Draw(depthShader);
 	model = glm::translate(model, glm::vec3(-4.0f, 0.3f, 0.0f));
 	depthShader.setMat4Float("model", glm::value_ptr(model));
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
 	treeLeavesModel.Draw(depthShader);
 	treeTrunkModel.Draw(depthShader);
+	glDisable(GL_CULL_FACE);
 }
 
 bool NaturalScene::hasBloom()
@@ -129,7 +132,7 @@ void NaturalScene::buildShadowMap()
 	shadowMapFBO;
 	glGenFramebuffers(1, &shadowMapFBO);
 	//Texture building
-	const GLuint SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
+	const GLuint SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 	glGenTextures(1, &depthMap);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
@@ -147,10 +150,10 @@ void NaturalScene::buildShadowMap()
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	//TODO Render scene with proper shader
-	float near_plane = 1.0f, far_plane = 100.0f;
-	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, 
+	float near_plane = 1.0f, far_plane = 15.0f;
+	glm::mat4 lightProjection = glm::ortho(-5.0f, 5.0f, 
 		-10.0f, 10.0f, near_plane, far_plane);
-	glm::vec3 lightPosition(-4.5f, 60.5f, -60.7f);
+	glm::vec3 lightPosition(-4.0f, 10.5f, -4.7f);
 	glm::mat4 lightView = glm::lookAt(lightPosition,
 		glm::vec3(-4.0f, 0.3f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));

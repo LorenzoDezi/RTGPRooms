@@ -18,6 +18,7 @@ struct DirLight {
 in vec2 TexCoords;
 in vec3 FragPos;
 in vec3 Normal;
+in vec4 LightSpaceFragPos;
 in mat3 TBN;
 
 out vec4 FragColor;
@@ -27,6 +28,7 @@ uniform float textureScale;
 uniform Material material;
 #define NR_DIR_LIGHTS 2
 uniform DirLight dirLight[NR_DIR_LIGHTS];
+uniform sampler2D depthMap;
 
 const float PI = 3.14159265359;
 
@@ -35,6 +37,7 @@ float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
 vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir, vec3 albedo);
+float ShadowCalculation(vec3 normal, vec3 lightDir);
 
 
 void main()
@@ -50,11 +53,38 @@ void main()
 		Lo += CalcDirLight(dirLight[i], N, V, albedo);
 	}
 	float ao = texture(material.texture_ao, texCoords).r;
+	float shadow = ShadowCalculation(N, dirLight[0].direction);
 	vec3 ambient = vec3(0.03) * albedo * ao;
-	vec3 color = Lo + ambient;
+	vec3 color = (Lo + ambient) * (1.0 - shadow);
 	//Tonemapping with reinhart operator
 	color = color / (color + vec3(1.0));
 	FragColor = vec4(color, 1.0);
+}
+
+float ShadowCalculation(vec3 normal, vec3 lightDir) {
+	// perform perspective divide
+	vec3 projCoords = LightSpaceFragPos.xyz / LightSpaceFragPos.w;
+	// transform to [0,1] range
+	projCoords = projCoords * 0.5 + 0.5;
+	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+	float closestDepth = texture(depthMap, projCoords.xy).r;
+	// get depth of current fragment from light's perspective
+	float currentDepth = projCoords.z;
+	// check whether current frag pos is in shadow
+	//TODO: Adjust bias accordingly after model with depth 
+	float bias = 0.0009;
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	for (int x = -1; x <= 1; ++x)
+	{
+		for (int y = -1; y <= 1; ++y)
+		{
+			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			shadow += currentDepth - bias > pcfDepth ? 0.6 : 0.0;
+		}
+	}
+	shadow /= 9.0;
+	return shadow;
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)

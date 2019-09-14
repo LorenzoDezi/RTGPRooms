@@ -22,9 +22,6 @@ uniform Material materials[NR_MATERIALS];
 #define NR_DIR_LIGHTS 2
 uniform DirLight dirLight[NR_DIR_LIGHTS];
 uniform vec3 viewPos;
-uniform vec3 cameraFront;
-uniform float alphaTest;
-uniform float alphaMultiplier;
 uniform float roughness;
 uniform sampler2D depthMap;
 
@@ -68,7 +65,18 @@ float ShadowCalculation() {
 	// get depth of current fragment from light's perspective
 	float currentDepth = projCoords.z;
 	// check whether current frag pos is in shadow
-	float shadow = currentDepth > closestDepth ? 0.5 : 0.0;
+	float bias = 0.0001;
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
+	for (int x = -1; x <= 1; ++x)
+	{
+		for (int y = -1; y <= 1; ++y)
+		{
+			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+			shadow += currentDepth - bias > pcfDepth ? 0.6 : 0.0;
+		}
+	}
+	shadow /= 9.0;
 	return shadow;
 }
 
