@@ -68,6 +68,7 @@
     <None Include="Shaders\fragment_pbr.glsl" />
     <None Include="Shaders\fragment_phong.glsl" />
     <None Include="Shaders\fragment_skybox.glsl" />
+    <None Include="Shaders\fragment_torch_phong.glsl" />
     <None Include="Shaders\tControl_abstract.glsl" />
     <None Include="Shaders\tEvaluation_abstract.glsl" />
     <None Include="Shaders\vertex_abstract.glsl" />
@@ -82,6 +83,7 @@
     <None Include="Shaders\vertex_pbr.glsl" />
     <None Include="Shaders\vertex_phong.glsl" />
     <None Include="Shaders\vertex_skybox.glsl" />
+    <None Include="Shaders\vertex_torch_phong.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

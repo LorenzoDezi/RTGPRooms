@@ -24,8 +24,9 @@ private:
 	Shader shader;
 	Shader shaderLight;
 	Shader doorShader;
+	Shader torchShader;
 	Shader skyboxShader;
-	BlinnPhongModel model;
+	std::shared_ptr<BlinnPhongModel> model;
 
 	//Models
 	std::shared_ptr<Model> roomModel;

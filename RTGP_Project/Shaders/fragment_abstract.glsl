@@ -10,7 +10,6 @@ in vec3 Normal;
 uniform float time;
 
 void main() {
-	//TODO
 	vec3 color = vec3(0.0);
 	color += vec3(0.70, 0.11, 0.32) * truchetOffset * 2.0;
 	FragColor = vec4(color, 1.0);

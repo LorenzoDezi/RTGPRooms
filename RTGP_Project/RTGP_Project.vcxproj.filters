@@ -199,5 +199,11 @@
     <None Include="Shaders\fragment_abstract.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\vertex_torch_phong.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_torch_phong.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
