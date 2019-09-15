@@ -66,6 +66,9 @@
     <ClCompile Include="DepthMapped.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="AbstractScene.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h">
@@ -117,6 +120,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="DepthMapped.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="AbstractScene.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
@@ -179,6 +185,18 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\vertex_pbr.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\tControl_abstract.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\tEvaluation_abstract.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertex_abstract.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_abstract.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

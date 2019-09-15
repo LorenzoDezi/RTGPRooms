@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AbstractScene.cpp" />
     <ClCompile Include="BlinnPhongModel.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DepthMapped.cpp" />
@@ -37,6 +38,7 @@
     <ClCompile Include="Skybox.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AbstractScene.h" />
     <ClInclude Include="BlinnPhongModel.h" />
     <ClInclude Include="DepthMapped.h" />
     <ClInclude Include="Door.h" />
@@ -56,6 +58,7 @@
     <ClInclude Include="Scene.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Shaders\fragment_abstract.glsl" />
     <None Include="Shaders\fragment_blur.glsl" />
     <None Include="Shaders\fragment_depth.glsl" />
     <None Include="Shaders\fragment_door.glsl" />
@@ -65,6 +68,9 @@
     <None Include="Shaders\fragment_pbr.glsl" />
     <None Include="Shaders\fragment_phong.glsl" />
     <None Include="Shaders\fragment_skybox.glsl" />
+    <None Include="Shaders\tControl_abstract.glsl" />
+    <None Include="Shaders\tEvaluation_abstract.glsl" />
+    <None Include="Shaders\vertex_abstract.glsl" />
     <None Include="Shaders\vertex_depth.glsl" />
     <None Include="Shaders\vertex_door.glsl" />
     <None Include="Shaders\fragment_grass.glsl" />

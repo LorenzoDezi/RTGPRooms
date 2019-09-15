@@ -28,6 +28,7 @@ public:
 	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 	int GetVAO();
 	void Draw(Shader &shader);
+	void DrawTessellated(Shader &shader);
 	~Mesh();
 private:
 	/*  Render data  */

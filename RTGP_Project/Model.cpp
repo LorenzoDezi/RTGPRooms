@@ -16,6 +16,12 @@ void Model::Draw(Shader &shader)
 		meshes[i]->Draw(shader);
 }
 
+void Model::DrawTessellated(Shader & shader)
+{
+	for (unsigned int i = 0; i < meshes.size(); i++)
+		meshes[i]->DrawTessellated(shader);
+}
+
 std::vector<std::shared_ptr<Mesh>> Model::getMeshes()
 {
 	return meshes;

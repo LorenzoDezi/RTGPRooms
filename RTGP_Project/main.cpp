@@ -6,6 +6,7 @@
 #include "Shader.h"
 #include "CorridorScene.h"
 #include "NaturalScene.h"
+#include "AbstractScene.h"
 #include "BlinnPhongModel.h"
 #include "Physics.h"
 #include "RenderQuad.h"
@@ -54,8 +55,8 @@ std::unordered_map<sceneType, std::unique_ptr<Scene>> sceneMap;
 
 int main() {
 	glfwInit();
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "RTGP_Project", NULL, NULL);
 	if (window == NULL) {
@@ -113,10 +114,12 @@ int main() {
 	//Map scenetype -> room
 	sceneType currentSceneType = CORRIDOR;
 	sceneMap[CORRIDOR] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
-	sceneMap[NATURAL] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
+	//sceneMap[NATURAL] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
+	//DEBUG - change later
+	sceneMap[NATURAL] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
 	//TODO: Implement toon and abstract classes
 	sceneMap[TOON] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
-	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
+	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new AbstractScene(physicsSimulation, roomModel, doors));
 	
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

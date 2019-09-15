@@ -8,9 +8,8 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
 	leavesShader("Shaders/vertex_leaves.glsl", "Shaders/fragment_leaves.glsl"),
-	roomModel(roomModel), treeTrunkModel("Assets/TreeTrunk.obj"),
-	treeLeavesModel("Assets/TreeLeaves.obj"),
-	doorModel("Assets/door.obj"), faces{
+	roomModel(std::make_shared<Model>(roomModel)), treeTrunkModel("Assets/TreeTrunk.obj"),
+	treeLeavesModel("Assets/TreeLeaves.obj"), faces {
 	"assets/textures/craterlake_lf.tga",
 	"assets/textures/craterlake_rt.tga",
 	"assets/textures/craterlake_up.tga",
@@ -42,7 +41,7 @@ NaturalScene::NaturalScene(Physics &simulation, Model &roomModel, std::vector<st
 	grass.setDepthMap(depthMap);
 	treeLeavesModel.setDepthMap(depthMap);
 	treeTrunkModel.setDepthMap(depthMap);
-	this->roomModel.setDepthMap(depthMap);
+	this->roomModel->setDepthMap(depthMap);
 }
 
 void NaturalScene::Draw(Camera &camera, float time)
@@ -79,7 +78,7 @@ void NaturalScene::Draw(Camera &camera, float time)
 	shader.use();
 	shader.setMat4Float("model", glm::value_ptr(model));
 	shader.setFloat("textureScale", 4.0f);
-	roomModel.Draw(shader);
+	roomModel->Draw(shader);
 
 	//trees rendering
 	model = glm::mat4(1.0f);
@@ -106,7 +105,7 @@ void NaturalScene::DrawSceneDepth()
 	depthShader.use();
 	depthShader.setMat4Float("model", glm::value_ptr(model));
 	depthShader.setMat4Float("lightSpaceMatrix", glm::value_ptr(lightSpaceMatrix));
-	roomModel.Draw(depthShader);
+	roomModel->Draw(depthShader);
 	model = glm::translate(model, glm::vec3(-4.0f, 0.3f, 0.0f));
 	depthShader.setMat4Float("model", glm::value_ptr(model));
 	glEnable(GL_CULL_FACE);
@@ -124,7 +123,8 @@ bool NaturalScene::hasBloom()
 
 NaturalScene::~NaturalScene()
 {
-	//TODO: delete stuff
+	glDeleteFramebuffers(1, &shadowMapFBO);
+	glDeleteTextures(1, &depthMap);
 }
 
 void NaturalScene::buildShadowMap()

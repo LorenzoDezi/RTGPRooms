@@ -15,7 +15,8 @@
 class Shader {
 public:
     GLuint ID;
-	Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLchar *geometryPath = nullptr);
+	Shader(const GLchar *vertexPath, const GLchar *fragmentPath, const GLchar *geometryPath = nullptr,
+		const GLchar *tControlPath = nullptr, const GLchar *tEvaluationPath = nullptr);
     void use();
     void setBool(const std::string &name, bool value) const;
     void setInt(const std::string &name, int value) const;

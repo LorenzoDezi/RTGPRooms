@@ -1,25 +1,37 @@
 #include "Shader.h"
 
-Shader::Shader(const GLchar * vertexPath, const GLchar * fragmentPath, const GLchar * geometryPath)
+Shader::Shader(const GLchar * vertexPath, const GLchar * fragmentPath, const GLchar * geometryPath,
+	const GLchar *tControlPath, const GLchar *tEvaluationPath)
 {
 	//Extracting and compiling shader sources
 	std::string vertexCode = extractShaderFromFile(vertexPath);
 	std::string fragCode = extractShaderFromFile(fragmentPath);
-	GLuint vertexID, fragID, geometryID;
+	GLuint vertexID, fragID, geometryID, tControlID, tEvaluationID;
 	vertexID = compileShader(vertexCode.c_str(), GL_VERTEX_SHADER);
 	fragID = compileShader(fragCode.c_str(), GL_FRAGMENT_SHADER);
 	if (geometryPath != nullptr) {
 		std::string geometryCode = extractShaderFromFile(geometryPath);
 		geometryID = compileShader(geometryCode.c_str(), GL_GEOMETRY_SHADER);
 	}
+	if (tControlPath != nullptr) {
+		std::string tControlCode = extractShaderFromFile(tControlPath);
+		tControlID = compileShader(tControlCode.c_str(), GL_TESS_CONTROL_SHADER);
+	}
+	if (tEvaluationPath != nullptr) {
+		std::string tEvaluationCode = extractShaderFromFile(tEvaluationPath);
+		tEvaluationID = compileShader(tEvaluationCode.c_str(), GL_TESS_EVALUATION_SHADER);
+	}
 
 	//Creating and linking program
 	this->ID = glCreateProgram();
 	glAttachShader(this->ID, vertexID);
 	glAttachShader(this->ID, fragID);
-	if (geometryPath != nullptr) {
+	if (geometryPath != nullptr)
 		glAttachShader(this->ID, geometryID);
-	}
+	if (tControlPath != nullptr)
+		glAttachShader(this->ID, tControlID);
+	if (tEvaluationPath != nullptr)
+		glAttachShader(this->ID, tEvaluationID);
 	glLinkProgram(this->ID);
 	checkProgramLinking(this->ID);
 
@@ -28,6 +40,10 @@ Shader::Shader(const GLchar * vertexPath, const GLchar * fragmentPath, const GLc
 	glDeleteShader(fragID);
 	if(geometryPath != nullptr)
 		glDeleteShader(geometryID);
+	if (tControlPath != nullptr)
+		glDeleteShader(tControlID);
+	if (tEvaluationPath != nullptr)
+		glDeleteShader(tEvaluationID);
 }
 
 std::string Shader::extractShaderFromFile(const GLchar *shaderPath) const {

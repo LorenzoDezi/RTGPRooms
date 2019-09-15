@@ -6,8 +6,8 @@ CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
-	roomModel(roomModel), torchModel("Assets/torch2.obj"),
-	doorModel("Assets/door.obj"), sphereModel("Assets/sphere.obj"), faces{
+	roomModel(std::make_shared<Model>(roomModel)), torchModel("Assets/torch2.obj"),
+	sphereModel("Assets/sphere.obj"), faces{
 	"assets/textures/purplenebula_lf.tga",
 	"assets/textures/purplenebula_rt.tga",
 	"assets/textures/purplenebula_up.tga",
@@ -67,6 +67,7 @@ void CorridorScene::Draw(Camera &camera, float time)
 	}
 	//light supports rendering
 	model.setMaterial(0.2f, 0.4f, 0.0f, 0.2f);
+	shader.setFloat("textureScale", 1.0f);
 	for (int i = 0; i < NR_CORRIDOR_POINT_LIGHTS; i++) {
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, lightSupportPositions[i]);
@@ -88,10 +89,11 @@ void CorridorScene::Draw(Camera &camera, float time)
 	//room rendering
 	model.setMaterial(0.3f, 0.8f, 0.1f, 0.2f);
 	glm::mat4 model = glm::mat4(1.0f);
+	shader.setFloat("textureScale", 3.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 	shader.use();
 	shader.setMat4Float("model", glm::value_ptr(model));
-	roomModel.Draw(shader);
+	roomModel->Draw(shader);
 
 	//skybox rendering
 	skybox.Draw(skyboxShader, view, projection);

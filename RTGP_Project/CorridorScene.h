@@ -28,8 +28,7 @@ private:
 	BlinnPhongModel model;
 
 	//Models
-	Model roomModel;
-	Model doorModel;
+	std::shared_ptr<Model> roomModel;
 	Model torchModel;
 	Model sphereModel;
 

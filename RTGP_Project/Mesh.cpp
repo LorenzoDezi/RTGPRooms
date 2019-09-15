@@ -31,6 +31,13 @@ void Mesh::Draw(Shader &shader)
 	glBindVertexArray(0);
 }
 
+void Mesh::DrawTessellated(Shader & shader)
+{
+	glBindVertexArray(VAO);
+	glDrawElements(GL_PATCHES, indices.size(), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+}
+
 Mesh::~Mesh()
 {
 	glDeleteVertexArrays(1, &VAO);

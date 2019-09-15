@@ -39,8 +39,7 @@ private:
 	std::shared_ptr<PBRModel> model;
 
 	//Models
-	Model roomModel;
-	Model doorModel;
+	std::shared_ptr<Model> roomModel;
 	Model treeTrunkModel;
 	Model treeLeavesModel;
 

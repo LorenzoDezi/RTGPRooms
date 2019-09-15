@@ -1,4 +1,4 @@
-#version 330 core
+#version 420 core
 layout(location = 0) out vec4 FragColor;
 layout(location = 1) out vec4 BrightColor;
 
@@ -55,22 +55,25 @@ uniform Material material;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform DirLight dirLight;
 
-vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir);
-vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir);
+uniform float textureScale;
+
+
+vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir, vec2 texCoords);
+vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir, vec2 texCoords);
 
 
 void main() {
-	vec3 norm = vec3(texture(material.texture_normals, TexCoords));
+	vec2 texCoords = vec2(TexCoords.x * textureScale, TexCoords.y * textureScale);
+	vec3 norm = vec3(texture(material.texture_normals, texCoords));
 	norm = normalize(norm * 2.0 - 1.0);
 	norm = normalize(TBN * norm);
 	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 result = CalcDirLight(dirLight, norm, viewDir);
+	vec3 result = CalcDirLight(dirLight, norm, viewDir, texCoords);
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-		result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+		result += CalcPointLight(pointLights[i], norm, FragPos, viewDir, texCoords);
 	}	
 	FragColor = vec4(result, 1.0);
 
-	//Check if the fragment is brighter than a certain threshold (TODO: check it)
 	float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
 	if (brightness >= 3.0)
 		BrightColor = vec4(FragColor.rgb, 1.0);
@@ -79,13 +82,13 @@ void main() {
 
 }
 
-vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
+vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir, vec2 texCoords) {
 	vec3 lightDir = normalize(-light.direction);
 	//Ambient calculation
-	vec3 ambient = vec3(texture(material.texture_diffuse, TexCoords)) * light.ambient * material.Ka;
+	vec3 ambient = vec3(texture(material.texture_diffuse, texCoords)) * light.ambient * material.Ka;
 	//diffuse calculation
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, TexCoords))) * light.diffuse * material.Kd;
+	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, texCoords))) * light.diffuse * material.Kd;
 	//specular calculation
 	vec3 halfwayDir = normalize(lightDir + viewDir);	
 	float spec = pow(max(dot(viewDir, halfwayDir), 0.0), material.shininess);
@@ -94,20 +97,20 @@ vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir) {
 	return specular + diffuse + ambient;
 }
 
-vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir) {
+vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir, vec2 texCoords) {
 	vec3 lightDir = normalize(light.position - fragPos);
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 	//Ambient calculation
-	vec3 ambient = vec3(texture(material.texture_diffuse, TexCoords)) * light.ambient * attenuation * material.Ka;
+	vec3 ambient = vec3(texture(material.texture_diffuse, texCoords)) * light.ambient * attenuation * material.Ka;
 	//diffuse calculation
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, TexCoords))) * light.diffuse * attenuation * material.Kd;
+	vec3 diffuse = (diff * vec3(texture(material.texture_diffuse, texCoords))) * light.diffuse * attenuation * material.Kd;
 	//specular calculation
 	vec3 reflectDir = reflect(-lightDir, norm);
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 	//The specular map is saved in grayscale, but without this its value will be read as GL_RED
-	vec3 specularTexture = vec3(texture(material.texture_specular, TexCoords));
+	vec3 specularTexture = vec3(texture(material.texture_specular, texCoords));
 	vec3 specular = light.specular * spec * vec3(specularTexture.r, specularTexture.r, specularTexture.r) * attenuation * material.Ks;
 	//point light contribution
 	return specular + diffuse + ambient;

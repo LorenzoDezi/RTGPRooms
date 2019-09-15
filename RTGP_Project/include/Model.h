@@ -23,6 +23,7 @@ public:
 	}
 	std::vector<int> GetVAOs();
 	void Draw(Shader &shader);
+	void DrawTessellated(Shader &shader);
 	std::vector<std::shared_ptr<Mesh>> getMeshes();
 	~Model();
 
