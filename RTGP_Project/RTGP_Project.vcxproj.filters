@@ -69,6 +69,9 @@
     <ClCompile Include="AbstractScene.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="BezierSurface.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h">
@@ -123,6 +126,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="AbstractScene.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="BezierSurface.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
@@ -203,6 +209,18 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\fragment_torch_phong.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertex_bezier.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_bezier.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\tControl_bezier.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\tEvaluation_bezier.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

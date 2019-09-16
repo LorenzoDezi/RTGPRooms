@@ -39,6 +39,7 @@ float GetTessLevel(float dist0, float dist1) {
 	//TODO: check proper values
 	float avgDist = (dist0 + dist1) / 2.0;
 	if (avgDist <= 8.0) {
+		//At max you can tessellate 64!
 		return 64.0;
 	}
 	else {
