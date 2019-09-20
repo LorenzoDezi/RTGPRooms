@@ -8,14 +8,13 @@
 class BezierSurface
 {
 public:
-	BezierSurface(std::vector<glm::vec3> &controlPoints, std::vector<GLuint> &controlPointIndices);
+	BezierSurface(std::vector<glm::vec3> &controlPoints);
 	void Update(float time);
 	void Draw(Shader &shader);
 	~BezierSurface();
 
 private:
-	GLuint VAO, VBO, EBO;
+	GLuint VAO, VBO;
 	std::vector<glm::vec3> controlPoints;
-	std::vector<GLuint> controlPointIndices;
 };
 

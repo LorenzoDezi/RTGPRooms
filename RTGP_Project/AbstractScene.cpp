@@ -26,21 +26,15 @@ AbstractScene::AbstractScene(Physics & simulation, Model & roomModel, std::vecto
 	std::vector<glm::vec3> controlPoints;
 	glm::vec3 controlPoint(0.0f);
 	for (int i = 0; i < 4; i++) {
+		controlPoint.z = i * -0.5f;
 		for (int j = 0; j < 4; j++) {
-			controlPoint.x = j * -0.5f;
+			controlPoint.x = j * 0.5f;
 			controlPoints.push_back(controlPoint);
 		}
-		controlPoint.z = i * 0.5f;
 		controlPoint.x = 0.f;
 	}
-		
-	std::vector<GLuint> controlPointIndices{
-		0, 1, 5, 4, 1, 2, 6, 5, 2, 3, 7, 6,
-		4, 5, 9, 8, 5, 6, 10, 9, 6, 7, 11, 10,
-		8, 9, 13, 12, 9, 10, 14, 13, 10, 11, 15, 14
-	};
-	surface = std::make_shared<BezierSurface>(controlPoints, controlPointIndices);
-	displaceTexture = ImageUtility::TextureFromFile("DisplaceFace.png", "Assets/textures");
+	surface = std::make_shared<BezierSurface>(controlPoints);
+	displaceTexture = ImageUtility::TextureFromFile("DisplaceFace2.png", "Assets/textures");
 	//Adjusting texture parameters
 	glBindTexture(GL_TEXTURE_2D, displaceTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -86,7 +80,7 @@ void AbstractScene::Draw(Camera & camera, float time)
 
 	//bezier surface rendering
 	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(4.0f, 1.0f, -3.7f));
+	model = glm::translate(model, glm::vec3(4.0f, 6.0f, -4.0f));
 	surface->Update(time);
 	//model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
 	bezierShader.use();

@@ -22,8 +22,8 @@
 #include "stb_image/stb_image.h"
 
 #define NR_POINT_LIGHTS 6
-#define SCR_WIDTH 1280.0f
-#define SCR_HEIGHT 720.0f
+#define SCR_WIDTH 1920.0f
+#define SCR_HEIGHT 1080.0f
 
 void framebuffer_size_callback(GLFWwindow *w, int width, int height);
 int main();

@@ -1,4 +1,4 @@
-﻿#version 420 core
+﻿#version 430 core
 layout(vertices = 3) out;
 
 uniform vec3 viewPos;

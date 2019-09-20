@@ -4,7 +4,6 @@ layout(quads) in;
 in vec4 Pos_ES[];
 
 out vec2 TexCoords; //Tex coordinate of the vertex
-//DEBUG
 out vec3 norm;
 out float DisplaceFactor;
 
@@ -34,7 +33,6 @@ void basisFunctions(out float[4] b, out float[4] db, float t) {
 void main() {
 	float u = gl_TessCoord.x;
 	float v = gl_TessCoord.y;
-
 	// The sixteen control points
 	vec4 p00 = Pos_ES[0];
 	vec4 p01 = Pos_ES[1];
@@ -95,13 +93,11 @@ void main() {
 	// The normal is the cross product of the partials 
 	vec3 n = normalize(cross(du.xyz, dv.xyz));
 
-	// Convert to camera coordinates 
-	//TODO: We really need it?
 	TexCoords = vec2(gl_TessCoord.x, gl_TessCoord.y);
 	norm = normalize((normal * vec4(n, 1.0)).xyz);
 	DisplaceFactor = texture(displaceMap, TexCoords).r;
 	//DEBUG
-	vec3 pos = Position.xyz + norm * DisplaceFactor * 0.1;
+	vec3 pos = Position.xyz + norm * DisplaceFactor * 0.4;
 	gl_Position = projection * view * model * vec4(pos, 1.0);
 
 }
