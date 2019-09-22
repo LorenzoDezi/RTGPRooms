@@ -151,7 +151,7 @@ int main() {
 		processInput(window);
 		//Rendering into the floating point framebuffer for hdr
 		glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 		sceneMap[currentSceneType]->Draw(camera, currTime);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
@@ -205,8 +205,8 @@ void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffers[])
 	unsigned int rboDepth;
 	glGenRenderbuffers(1, &rboDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 	// tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
 	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
 	//Now the frame buffer will render to those two attachments

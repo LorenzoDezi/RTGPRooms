@@ -235,5 +235,11 @@
     <None Include="Shaders\fragment_toon.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Shaders\vertex_outline.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_outline.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

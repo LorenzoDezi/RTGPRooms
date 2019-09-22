@@ -15,6 +15,7 @@ public:
 
 private:
 	Shader shader;
+	Shader outlineShader;
 	Shader doorShader;
 	Shader skyboxShader;
 	std::shared_ptr<BlinnPhongModel> model;
