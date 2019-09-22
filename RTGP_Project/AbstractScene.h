@@ -13,7 +13,8 @@ class AbstractScene :
 	public Scene
 {
 public:
-	AbstractScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors);
+	AbstractScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors,
+		float screenWidth, float screenHeight);
 	void Draw(Camera &camera, float time);
 	bool hasBloom();
 	~AbstractScene();
@@ -33,5 +34,7 @@ private:
 
 	std::string faces[6];
 	Skybox skybox;
+
+	const float screenWidth, screenHeight;
 };
 

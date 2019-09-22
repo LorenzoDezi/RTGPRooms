@@ -37,6 +37,7 @@
     <ClCompile Include="RenderQuad.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="ToonScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AbstractScene.h" />
@@ -58,6 +59,7 @@
     <ClInclude Include="CorridorScene.h" />
     <ClInclude Include="RenderQuad.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="ToonScene.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\fragment_abstract.glsl" />
@@ -71,6 +73,7 @@
     <None Include="Shaders\fragment_pbr.glsl" />
     <None Include="Shaders\fragment_phong.glsl" />
     <None Include="Shaders\fragment_skybox.glsl" />
+    <None Include="Shaders\fragment_toon.glsl" />
     <None Include="Shaders\fragment_torch_phong.glsl" />
     <None Include="Shaders\tControl_abstract.glsl" />
     <None Include="Shaders\tControl_bezier.glsl" />
@@ -89,6 +92,7 @@
     <None Include="Shaders\vertex_pbr.glsl" />
     <None Include="Shaders\vertex_phong.glsl" />
     <None Include="Shaders\vertex_skybox.glsl" />
+    <None Include="Shaders\vertex_toon.glsl" />
     <None Include="Shaders\vertex_torch_phong.glsl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

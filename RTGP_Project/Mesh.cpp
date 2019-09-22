@@ -1,6 +1,7 @@
 #include "Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures, glm::vec3 color_diffuse)
+	: color_diffuse(color_diffuse)
 {
 	this->vertices = vertices;
 	this->indices = indices;
@@ -25,6 +26,8 @@ void Mesh::Draw(Shader &shader)
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);
+	shader.setVec3Float("material.color_diffuse", 
+		color_diffuse.r, color_diffuse.g, color_diffuse.b);
 	//draw mesh
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

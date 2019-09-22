@@ -42,7 +42,7 @@ float ShadowCalculation(vec3 normal, vec3 lightDir);
 
 void main()
 {
-	vec2 texCoords = vec2(TexCoords.x * textureScale, -TexCoords.y * textureScale);
+	vec2 texCoords = vec2(TexCoords.x * textureScale, TexCoords.y * textureScale);
 	vec3 N = vec3(texture(material.texture_normals, texCoords));
 	N = normalize(N * 2.0 - 1.0);
 	N = normalize(TBN * N);

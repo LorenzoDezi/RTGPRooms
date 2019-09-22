@@ -66,7 +66,7 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh * mesh, const aiScene * scene)
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
-
+	glm::vec3 color_diffuse;
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
 		Vertex vertex;
@@ -117,6 +117,10 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh * mesh, const aiScene * scene)
 		if (mesh->mMaterialIndex >= 0)
 		{
 			aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+			aiColor3D color;
+			if (AI_SUCCESS == material->Get(AI_MATKEY_COLOR_DIFFUSE, color)) {
+				color_diffuse = glm::vec3(color.r, color.g, color.b);
+			}
 			std::vector<Texture> diffuseMaps = loadMaterialTextures(material,
 				aiTextureType_DIFFUSE, "texture_diffuse");
 			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
@@ -139,7 +143,7 @@ std::shared_ptr<Mesh> Model::processMesh(aiMesh * mesh, const aiScene * scene)
 			textures.insert(textures.end(), aoMaps.begin(), aoMaps.end());
 		}
 	}
-	return std::make_shared<Mesh>(vertices, indices, textures);
+	return std::make_shared<Mesh>(vertices, indices, textures, color_diffuse);
 }
 
 std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType type, std::string typeName)

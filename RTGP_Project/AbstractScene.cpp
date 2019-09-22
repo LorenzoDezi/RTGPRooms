@@ -2,7 +2,8 @@
 
 
 
-AbstractScene::AbstractScene(Physics & simulation, Model & roomModel, std::vector<std::shared_ptr<Door>>& doors) :
+AbstractScene::AbstractScene(Physics & simulation, Model & roomModel, std::vector<std::shared_ptr<Door>>& doors, 
+	float screenWidth, float screenHeight) :
 	shader("Shaders/vertex_abstract.glsl", "Shaders/fragment_abstract.glsl", nullptr, 
 		"Shaders/tControl_abstract.glsl", "Shaders/tEvaluation_abstract.glsl"),
 	faceShader("Shaders/vertex_abstract.glsl", "Shaders/fragment_face.glsl", nullptr,
@@ -14,13 +15,14 @@ AbstractScene::AbstractScene(Physics & simulation, Model & roomModel, std::vecto
 	doors(doors),
 	skyboxShader("Shaders/vertex_skybox.glsl", "Shaders/fragment_skybox.glsl"),
 	faces {
-	"assets/textures/mercury_lf.tga",
-	"assets/textures/mercury_rt.tga",
-	"assets/textures/mercury_up.tga",
-	"assets/textures/mercury_dn.tga",
-	"assets/textures/mercury_ft.tga",
-	"assets/textures/mercury_bk.tga"
-}, displaceTexture(0), skybox(faces)
+		"assets/textures/mercury_lf.tga",
+		"assets/textures/mercury_rt.tga",
+		"assets/textures/mercury_up.tga",
+		"assets/textures/mercury_dn.tga",
+		"assets/textures/mercury_ft.tga",
+		"assets/textures/mercury_bk.tga"
+	}, displaceTexture(0), skybox(faces), 
+	screenWidth(screenWidth), screenHeight(screenHeight)
 {
 	//Bezier setup
 	std::vector<glm::vec3> controlPoints;

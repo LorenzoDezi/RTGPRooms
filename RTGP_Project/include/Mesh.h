@@ -24,8 +24,10 @@ public:
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
+	glm::vec3 color_diffuse;
 	/*  Functions  */
-	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, 
+		std::vector<Texture> textures, glm::vec3 color_diffuse);
 	int GetVAO();
 	void Draw(Shader &shader);
 	void DrawTessellated(Shader &shader);

@@ -1,7 +1,8 @@
 #include "CorridorScene.h"
 
 //TODO: toggle simulation
-CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors) :
+CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors,
+	float screenWidth, float screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight),
 	shader("Shaders/vertex_phong.glsl", "Shaders/fragment_phong.glsl"),
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	shaderLight("Shaders/vertex_lamp.glsl", "Shaders/fragment_lamp.glsl"),
@@ -45,7 +46,7 @@ void CorridorScene::Draw(Camera &camera, float time)
 	glm::mat4 view = glm::mat4(1.0f);
 	view = camera.GetViewMatrix();
 	glm::mat4 projection;
-	projection = glm::perspective(camera.Zoom, 1280.0f / 720.0f, 0.1f, 100.0f);
+	projection = glm::perspective(camera.Zoom, screenWidth / screenHeight, 0.1f, 100.0f);
 	shader.use();
 	shader.setMat4Float("view", glm::value_ptr(view));
 	shader.setMat4Float("projection", glm::value_ptr(projection));

@@ -72,6 +72,9 @@
     <ClCompile Include="BezierSurface.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="ToonScene.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlinnPhongModel.h">
@@ -129,6 +132,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="BezierSurface.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="ToonScene.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
@@ -221,6 +227,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="Shaders\tEvaluation_bezier.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\vertex_toon.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\fragment_toon.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

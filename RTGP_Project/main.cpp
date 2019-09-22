@@ -7,6 +7,7 @@
 #include "CorridorScene.h"
 #include "NaturalScene.h"
 #include "AbstractScene.h"
+#include "ToonScene.h"
 #include "BlinnPhongModel.h"
 #include "Physics.h"
 #include "RenderQuad.h"
@@ -113,13 +114,13 @@ int main() {
 	};
 	//Map scenetype -> room
 	sceneType currentSceneType = CORRIDOR;
-	sceneMap[CORRIDOR] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
+	sceneMap[CORRIDOR] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
 	sceneMap[NATURAL] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
 	//DEBUG - change later
 	//sceneMap[NATURAL] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
 	//TODO: Implement toon and abstract classes
-	sceneMap[TOON] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
-	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new AbstractScene(physicsSimulation, roomModel, doors));
+	sceneMap[TOON] = std::unique_ptr<Scene>(new ToonScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
+	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new AbstractScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
 	
 	while (!glfwWindowShouldClose(window)) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -14,7 +14,7 @@
 class CorridorScene : public Scene
 {
 public:
-	CorridorScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors);
+	CorridorScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors, float screenWidth, float screenHeight);
 	void Draw(Camera &camera, float time);
 	bool hasBloom();
 	~CorridorScene();
@@ -43,6 +43,10 @@ private:
 	//Skybox setup
 	std::string faces[6];
 	Skybox skybox;
+
+	//Screen width and height
+	const float screenWidth;
+	const float screenHeight;
 
 };
 
