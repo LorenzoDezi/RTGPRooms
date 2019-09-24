@@ -22,6 +22,7 @@ private:
 
 	std::shared_ptr<Model> roomModel;
 	std::shared_ptr<Model> mainModel;
+	std::shared_ptr<Model> outlineModel;
 	std::vector<std::shared_ptr<Door>> doors;
 
 	std::string faces[6];

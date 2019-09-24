@@ -36,6 +36,10 @@ uniform Material material;
 #define NR_POINT_LIGHTS 1
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 uniform DirLight dirLight;
+
+const int levels = 10;
+const float scaleFactor = 1.0 / levels;
+
 float CalcPointLight(vec3 norm, vec3 V, PointLight pointLight);
 
 void main() {
@@ -51,10 +55,11 @@ void main() {
 float CalcPointLight(vec3 norm, vec3 V, PointLight pointLight) {
 	vec3 L = normalize(pointLight.position - FragPos);
 	vec3 H = normalize(L + V);
-	float diffuse = material.Kd * max(0, dot(L, norm));
+	float diffuse = max(0, dot(L, norm));
+	diffuse = material.Kd * floor(levels * diffuse) * scaleFactor;
 	float specular = 0.0;
 	if (dot(L, norm) > 0.0) {
-		specular = material.Ks * pow(max(0, dot(H, norm)), material.shininess);
+		specular = material.Kd * pow(max(0, dot(H, norm)), material.shininess);
 	}
 	return diffuse + specular;
 }
