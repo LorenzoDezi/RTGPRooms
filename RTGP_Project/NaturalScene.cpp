@@ -109,7 +109,8 @@ void NaturalScene::DrawSceneDepth()
 	model = glm::translate(model, glm::vec3(-4.0f, 0.3f, 0.0f));
 	depthShader.setMat4Float("model", glm::value_ptr(model));
 	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	//DEBUG
+	//glCullFace(GL_FRONT);
 	treeLeavesModel.Draw(depthShader);
 	treeTrunkModel.Draw(depthShader);
 	glDisable(GL_CULL_FACE);

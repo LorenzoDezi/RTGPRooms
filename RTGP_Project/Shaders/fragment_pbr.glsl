@@ -72,15 +72,17 @@ float ShadowCalculation(vec3 normal, vec3 lightDir) {
 	float currentDepth = projCoords.z;
 	// check whether current frag pos is in shadow
 	//TODO: Adjust bias accordingly after model with depth 
-	float bias = 0.0009;
+	float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
-	for (int x = -1; x <= 1; ++x)
+	for (int x = -1; x <= 1; x++)
 	{
-		for (int y = -1; y <= 1; ++y)
+		for (int y = -1; y <= 1; y++)
 		{
 			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			shadow += currentDepth - bias > pcfDepth ? 0.6 : 0.0;
+			//DEBUG: actually it's 0.6
+			//debug: currentDepth - bias
+			shadow += currentDepth - bias > pcfDepth ? 0.7 : 0.0;
 		}
 	}
 	shadow /= 9.0;

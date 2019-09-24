@@ -72,7 +72,7 @@ void Camera::updateCameraVectors()
 	// Calculate the new Front vector
 	btVector3 translation = rigidbody->getWorldTransform().getOrigin();
 	//The y value is slightly translated in order to achieve a "head position" effect
-	Position = glm::vec3(translation.x(), translation.y() + 1.5f, translation.z());
+	Position = glm::vec3(translation.x(), translation.y() + 1.2f, translation.z());
 	glm::vec3 front;
 	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
 	front.y = sin(glm::radians(Pitch));
