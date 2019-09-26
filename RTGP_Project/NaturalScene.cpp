@@ -49,15 +49,15 @@ void NaturalScene::Draw(Camera &camera, float time)
 	glm::mat4 view = glm::mat4(1.0f);
 	view = camera.GetViewMatrix();
 	glm::mat4 projection;
-	projection = glm::perspective(camera.Zoom, 1280.0f / 720.0f, 0.1f, 100.0f);
+	projection = glm::perspective(camera.Zoom, screenWidth / screenHeight, 0.1f, 100.0f);
 	shader.use();
 	shader.setMat4Float("view", glm::value_ptr(view));
 	shader.setMat4Float("projection", glm::value_ptr(projection));
 	shader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
-	model->setLightColor(glm::vec3(8.5f, 8.5f, 8.5f));
-	model->setDirLight(glm::vec3(0.3f, -0.5f, 0.5f));
-	model->setLightColor(glm::vec3(3.5f, 3.5f, 3.5f));
-	model->setDirLight(glm::vec3(-0.3f, -0.5f, -0.5f));
+	model->setLightColor(glm::vec3(5.5f, 5.5f, 5.5f));
+	model->setDirLight(glm::vec3(-0.4f, 1.0f, -0.4f));
+	model->setLightColor(glm::vec3(2.0f, 2.0f, 2.0f));
+	model->setDirLight(glm::vec3(0.4f, 1.0f, 0.4f));
 
 
 	//Doors rendering
@@ -150,7 +150,6 @@ void NaturalScene::buildShadowMap()
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	//TODO Render scene with proper shader
 	float near_plane = 1.0f, far_plane = 15.0f;
 	glm::mat4 lightProjection = glm::ortho(-5.0f, 5.0f, 
 		-10.0f, 10.0f, near_plane, far_plane);

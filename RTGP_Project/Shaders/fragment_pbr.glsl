@@ -71,7 +71,6 @@ float ShadowCalculation(vec3 normal, vec3 lightDir) {
 	// get depth of current fragment from light's perspective
 	float currentDepth = projCoords.z;
 	// check whether current frag pos is in shadow
-	//TODO: Adjust bias accordingly after model with depth 
 	float bias = max(0.005 * (1.0 - dot(normal, lightDir)), 0.0005);
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / textureSize(depthMap, 0);
@@ -131,24 +130,29 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 albedo) {
 
-	vec2 texCoords = vec2(TexCoords.x * textureScale, -TexCoords.y * textureScale);
-	vec3 L = normalize(light.direction);
+	vec2 texCoords = vec2(TexCoords.x * textureScale, TexCoords.y * textureScale);
+	vec3 L = normalize(-light.direction);
 	vec3 H = normalize(V + L);
 	vec3 radiance = light.color;
 	//For non metallic surface, F0 for fresnel is always 0.04. Otherwise we mix
 	//with albedo to tint the reflectance.
-	vec3 F0 = vec3(0.04, 0.04, 0.04);
+	vec3 F0 = vec3(0.04);
 	F0 = mix(F0, albedo, material.metallic);
 	//Calculating the various components of the rendering equation
-	vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-	float roughness = texture(material.texture_roughness, texCoords).r;
-	float NDF = DistributionGGX(N, H, roughness);
-	float G = GeometrySmith(N, V, L, roughness);
+	vec3 F = fresnelSchlick(clamp(dot(H, V), 0.0, 1.0), F0);
+	float NdotL = max(dot(N, L), 0.0);
+	vec3 specular = vec3(0.0);
+	if (NdotL > 0) {
+		float roughness = texture(material.texture_roughness, texCoords).r;
+		float NDF = DistributionGGX(N, H, roughness);
+		float G = GeometrySmith(N, V, L, roughness);
 
-	//Actually using those components
-	vec3 numerator = NDF * G * F;
-	float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-	vec3 specular = numerator / max(denominator, 0.001);
+		//Actually using those components
+		vec3 numerator = NDF * G * F;
+		float denominator = 4.0 * max(dot(N, V), 0.0) * NdotL;
+		//0.005 is a tweak to avoid reflections
+		specular = numerator * 0.005 / max(denominator, 0.001);
+	}
 	//F directly corresponds to Ks and for the law of energy conservation, we
 	//can easily find Kd. We than weight this value with the metallic value
 	//(no diffuse if fully metallic)
@@ -156,7 +160,6 @@ vec3 CalcDirLight(DirLight light, vec3 N, vec3 V, vec3 albedo) {
 	vec3 kD = vec3(1.0) - kS;
 	kD *= 1.0 - material.metallic;
 	//Summing the contribution of the light
-	float NdotL = max(dot(N, L), 0.0);
 	vec3 Lo = (kD * albedo / PI + specular) * radiance * NdotL;
 	return Lo;
 }

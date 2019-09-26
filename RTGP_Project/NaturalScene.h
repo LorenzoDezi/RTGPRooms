@@ -31,8 +31,6 @@ private:
 	Shader depthShader;
 	Shader shaderLight;
 	Shader leavesShader;
-	//TODO
-	//Shader shaderGrass;
 	Shader doorShader;
 	Shader skyboxShader;
 

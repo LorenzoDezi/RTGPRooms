@@ -22,14 +22,13 @@ float random(vec2 v);
 
 void main() {
 	TexCoords = interpolate2D(TexCoords_ES[0], TexCoords_ES[1], TexCoords_ES[2]);
-	//DEBUG
+	//Interpolating normals and positions
 	Normal =  normalize(interpolate3D(Normal_ES[0], Normal_ES[1], Normal_ES[2]));
 	FragPos = interpolate3D(Pos_ES[0], Pos_ES[1], Pos_ES[2]);
-	//TODO
-	vec2 pos = TexCoords * 40.0;
+	float textureScale = 40.0f;
+	vec2 pos = TexCoords * textureScale;
 	vec2 ipos = floor(pos);  // integer
 	vec2 fpos = fract(pos);  // fraction
-	//float offset = random(ipos);
 	vec2 tile = truchetPattern(fpos, random(ipos));
 	float offset = 0.0;
 	// Maze

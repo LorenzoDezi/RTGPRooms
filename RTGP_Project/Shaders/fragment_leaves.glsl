@@ -38,18 +38,6 @@ void main() {
 	float alpha = texture(material.texture_diffuse, TexCoords).a;
 	if (alpha < 0.6)
 		discard;
-	//TODO If time, do the illumination in some way
-	/*vec3 norm = vec3(texture(material.texture_normals, TexCoords));
-	norm = normalize(norm * 2.0 - 1.0);
-	norm = normalize(TBN * norm);
-	vec3 viewDir = normalize(viewPos - FragPos);
-	vec3 albedo = vec3(texture(material.texture_diffuse, TexCoords));
-	vec3 Lo = vec3(0.0, 0.0, 0.0);
-	for (int i = 0; i < NR_DIR_LIGHTS; i++) {
-		Lo += CalcDirLight(dirLight[i], norm, viewDir, albedo);
-	}
-	vec3 ambient = vec3(0.03) * albedo;
-	vec3 color = ambient + Lo;*/
 	vec3 albedo = vec3(texture(material.texture_diffuse, TexCoords));
 	vec3 color = albedo;
 	//Tonemapping with reinhart operator

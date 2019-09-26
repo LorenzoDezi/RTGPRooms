@@ -1,6 +1,4 @@
 #pragma once
-#ifndef CAMERA_H
-#define CAMERA_H
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -37,6 +35,7 @@ public:
 	// Camera Attributes
 	glm::vec3 Position;
 	glm::vec3 Front;
+	glm::vec3 Thrust;
 	glm::vec3 WorldFront;
 	glm::vec3 Up;
 	glm::vec3 Right;
@@ -73,4 +72,3 @@ private:
 	// Calculates the front vector from the Camera's (updated) Euler Angles and the position from the physics engine
 	void updateCameraVectors();
 };
-#endif

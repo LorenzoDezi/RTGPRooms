@@ -1,6 +1,5 @@
 #include "ToonScene.h"
 
-//TODO: Change shaders, skybox properly
 ToonScene::ToonScene(Physics & simulation, Model & roomModel, std::vector<std::shared_ptr<Door>>& doors, float screenWidth, float screenHeight)
 	: shader("Shaders/vertex_toon.glsl", "Shaders/fragment_toon.glsl"),
 	outlineShader("Shaders/vertex_outline.glsl", "Shaders/fragment_outline.glsl"),
@@ -29,7 +28,6 @@ ToonScene::ToonScene(Physics & simulation, Model & roomModel, std::vector<std::s
 
 void ToonScene::Draw(Camera & camera, float time)
 {
-	//TODO: completely rearrange when you decide what to do
 	glm::mat4 view = glm::mat4(1.0f);
 	view = camera.GetViewMatrix();
 	glm::mat4 projection;

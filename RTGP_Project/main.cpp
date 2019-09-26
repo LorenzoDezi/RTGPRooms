@@ -28,10 +28,9 @@
 
 void framebuffer_size_callback(GLFWwindow *w, int width, int height);
 int main();
-void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffer[]);
-void generateBlurPingPongBuffers(GLuint pingpongFBO[], GLuint pingpongBuffer[]);
-GLuint getBlurredBuffer(Shader &shaderBlur, GLuint &colorBuffer, GLuint pingpongFBO[], 
-	GLuint pingpongBuffer[], RenderQuad& quad);
+void generateColorBuffers(float screenWidth, float screenHeight);
+void generateBlurPingPongBuffers(float screenWidth, float screenHeight);
+GLuint getBlurredBuffer(Shader &shaderBlur, GLuint &colorBuffer, RenderQuad& quad);
 void mouse_callback(GLFWwindow* w, double xpos, double ypos);
 void processInput(GLFWwindow *w);
 
@@ -53,6 +52,11 @@ GLfloat maxSecPerFrame = 1.0f / 60.0f;
 Camera camera(physicsSimulation, glm::vec3(0.0f, 15.0f, 0.0f));
 std::unordered_map<sceneType, std::unique_ptr<Scene>> sceneMap;
 
+//HDR and blur buffers and textures
+GLuint pingpongFBO[2];
+GLuint pingpongBuffer[2];
+GLuint hdrFBO;
+GLuint colorBuffers[2];
 
 int main() {
 	glfwInit();
@@ -74,9 +78,6 @@ int main() {
 	}
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-	//TODO Calculate here normal matrix, on the CPU, because it costs on the vertex shader
-	//TODO Uniform buffer objects for lights
 	glEnable(GL_DEPTH_TEST);
 
 	//hdr and bloom shaders setup
@@ -88,11 +89,9 @@ int main() {
 	shaderBlur.use();
 	shaderBlur.setInt("image", 0);
 	// generating floating point framebuffers to store hdr values and brights colors (Bloom)
-	GLuint hdrFBO;
-	GLuint colorBuffers[2];
-	generateColorBuffers(hdrFBO, colorBuffers);
-	GLuint pingpongFBO[2], pingpongBuffer[2];
-	generateBlurPingPongBuffers(pingpongFBO, pingpongBuffer);
+	
+	generateColorBuffers(SCR_WIDTH, SCR_HEIGHT);
+	generateBlurPingPongBuffers(SCR_WIDTH, SCR_HEIGHT);
 	RenderQuad hdrQuad;
 
 	//Scene setup
@@ -116,9 +115,6 @@ int main() {
 	sceneType currentSceneType = CORRIDOR;
 	sceneMap[CORRIDOR] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
 	sceneMap[NATURAL] = std::unique_ptr<Scene>(new NaturalScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
-	//DEBUG - change later
-	//sceneMap[NATURAL] = std::unique_ptr<Scene>(new CorridorScene(physicsSimulation, roomModel, doors));
-	//TODO: Implement toon and abstract classes
 	sceneMap[TOON] = std::unique_ptr<Scene>(new ToonScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
 	sceneMap[ABSTRACT] = std::unique_ptr<Scene>(new AbstractScene(physicsSimulation, roomModel, doors, SCR_WIDTH, SCR_HEIGHT));
 	
@@ -158,8 +154,7 @@ int main() {
 		//Rendering floating point color buffer to 2D quad
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		if (sceneMap[currentSceneType]->hasBloom()) {
-			GLuint blurredBuffer = getBlurredBuffer(shaderBlur, colorBuffers[1],
-				pingpongFBO, pingpongBuffer, hdrQuad);
+			GLuint blurredBuffer = getBlurredBuffer(shaderBlur, colorBuffers[1], hdrQuad);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
 			glActiveTexture(GL_TEXTURE1);
@@ -184,7 +179,7 @@ int main() {
 	return 0;
 }
 
-void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffers[])
+void generateColorBuffers(float screenWidth, float screenHeight)
 {
 	glGenFramebuffers(1, &hdrFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
@@ -193,7 +188,7 @@ void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffers[])
 	for (unsigned int i = 0; i < 2; i++)
 	{
 		glBindTexture(GL_TEXTURE_2D, colorBuffers[i]);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, screenWidth, screenHeight, 0, GL_RGB, GL_FLOAT, NULL);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);  // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
@@ -205,7 +200,7 @@ void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffers[])
 	unsigned int rboDepth;
 	glGenRenderbuffers(1, &rboDepth);
 	glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, screenWidth, screenHeight);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
 	// tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
 	unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
@@ -217,7 +212,7 @@ void generateColorBuffers(GLuint &hdrFBO, GLuint colorBuffers[])
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void generateBlurPingPongBuffers(GLuint pingpongFBO[], GLuint pingpongBuffer[])
+void generateBlurPingPongBuffers(float screenWidth, float screenHeight)
 {
 	glGenFramebuffers(2, pingpongFBO);
 	glGenTextures(2, pingpongBuffer);
@@ -226,7 +221,7 @@ void generateBlurPingPongBuffers(GLuint pingpongFBO[], GLuint pingpongBuffer[])
 		glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[i]);
 		glBindTexture(GL_TEXTURE_2D, pingpongBuffer[i]);
 		glTexImage2D(
-			GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL
+			GL_TEXTURE_2D, 0, GL_RGB16F, screenWidth, screenHeight, 0, GL_RGB, GL_FLOAT, NULL
 		);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -241,7 +236,7 @@ void generateBlurPingPongBuffers(GLuint pingpongFBO[], GLuint pingpongBuffer[])
 	}
 }
 
-GLuint getBlurredBuffer(Shader& shaderBlur, GLuint& colorBuffer, GLuint pingpongFBO[], GLuint pingpongBuffer[], 
+GLuint getBlurredBuffer(Shader& shaderBlur, GLuint& colorBuffer, 
 	RenderQuad& quad)
 {
 	bool horizontal = true, first_iteration = true;
@@ -265,7 +260,12 @@ GLuint getBlurredBuffer(Shader& shaderBlur, GLuint& colorBuffer, GLuint pingpong
 
 void framebuffer_size_callback(GLFWwindow *w, int width, int height) {
 	glViewport(0, 0, width, height);
-	//TODO: windows resize, change render quad and blur framebuffers size
+	glDeleteBuffers(2, pingpongFBO);
+	glDeleteTextures(2, pingpongBuffer);
+	generateBlurPingPongBuffers(width, height);
+	glDeleteBuffers(1, &hdrFBO);
+	glDeleteTextures(2, colorBuffers);
+	generateColorBuffers(width, height);
 }
 
 void mouse_callback(GLFWwindow * w, double xpos, double ypos) {

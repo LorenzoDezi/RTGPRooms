@@ -1,6 +1,5 @@
 #include "CorridorScene.h"
 
-//TODO: toggle simulation
 CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<std::shared_ptr<Door>> &doors,
 	float screenWidth, float screenHeight) : screenWidth(screenWidth), screenHeight(screenHeight),
 	shader("Shaders/vertex_phong.glsl", "Shaders/fragment_phong.glsl"),
@@ -57,7 +56,7 @@ void CorridorScene::Draw(Camera &camera, float time)
 
 	//Light setup
 	model->setLightParameters(
-		glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.02f, 0.02f, 0.02f));
+		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.002f, 0.002f, 0.002f), glm::vec3(0.0f, 0.0f, 0.0f));
 	model->setDirLight(lightDir);
 
 	//lights rendering

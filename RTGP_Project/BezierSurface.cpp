@@ -34,10 +34,8 @@ void BezierSurface::Update(float time)
 
 void BezierSurface::Draw(Shader &shader)
 {
-	//TODO: see if shader parameter is needed
 	glPatchParameteri(GL_PATCH_VERTICES, 16);
 	glBindVertexArray(VAO);
-	//DEBUG
 	glDrawArrays(GL_PATCHES, 0, controlPoints.size());
 	glBindVertexArray(0);
 }

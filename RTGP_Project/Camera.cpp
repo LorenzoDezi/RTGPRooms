@@ -7,7 +7,7 @@ Camera::Camera(Physics physicsSimulation, glm::vec3 position, glm::vec3 size, gl
 	WorldUp = up;
 	Yaw = yaw;
 	Pitch = pitch;
-	//TODO Create cylinder shape rigid body
+	//ù Create cylinder shape rigid body
 	rigidbody = physicsSimulation.createRigidBody(CAPSULE, position, size, 
 		glm::vec3(0.1f, 0.0f, 0.1f), 50.0f, 0.6f, 0.0f);
 	rigidbody->setActivationState(DISABLE_DEACTIVATION);
@@ -25,12 +25,11 @@ glm::mat4 Camera::GetViewMatrix()
 void Camera::ProcessKeyboard(Camera_Movement direction)
 {
 	float forceIntensity = 300.0f;
-	//TODO: Set maximum velocity
 	glm::vec3 forceVector;
 	if (direction == FORWARD)
-		forceVector = WorldFront * forceIntensity;
+		forceVector = Thrust * forceIntensity;
 	if (direction == BACKWARD)
-		forceVector = -WorldFront * forceIntensity;
+		forceVector = -Thrust * forceIntensity;
 	if (direction == LEFT)
 		forceVector = -Right * forceIntensity;
 	if (direction == RIGHT)
@@ -74,10 +73,13 @@ void Camera::updateCameraVectors()
 	//The y value is slightly translated in order to achieve a "head position" effect
 	Position = glm::vec3(translation.x(), translation.y() + 1.2f, translation.z());
 	glm::vec3 front;
-	front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	float yawCos = cos(glm::radians(Yaw));
+	float yawSin = sin(glm::radians(Yaw));
+	front.x = yawCos * cos(glm::radians(Pitch));
 	front.y = sin(glm::radians(Pitch));
-	front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+	front.z = yawSin * cos(glm::radians(Pitch));
 	Front = glm::normalize(front);
+	Thrust = glm::vec3(yawCos, 0.0, yawSin);
 	WorldFront = glm::vec3(Front.x, 0.0f, Front.z);
 	// Also re-calculate the Right and Up vector
 	Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
