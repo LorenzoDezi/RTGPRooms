@@ -76,7 +76,6 @@ void AbstractScene::Draw(Camera & camera, float time)
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 	shader.use();
 	shader.setMat4Float("model", glm::value_ptr(model));
-	//DEBUG
 	glPatchParameteri(GL_PATCH_VERTICES, 3);
 	roomModel->DrawTessellated(shader);
 

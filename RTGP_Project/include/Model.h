@@ -15,7 +15,6 @@ class Model : public DepthMapped
 {
 public:
 	/*  Functions   */
-	//DEBUG
 	Model() {};
 	Model(std::string path)
 	{

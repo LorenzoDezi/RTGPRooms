@@ -60,7 +60,6 @@ void ToonScene::Draw(Camera & camera, float time)
 	model = glm::translate(model, glm::vec3(8.3f, 1.9f, 4.7f));
 	model = glm::rotate(model, glm::radians(45.f), glm::vec3(0.0f, 1.0f, 0.0f));
 	shader.setMat4Float("model", glm::value_ptr(model));
-	//DEBUG
 	glEnable(GL_STENCIL_TEST);
 	//We replace the stencil value if both depth and stencil test succeeds
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);

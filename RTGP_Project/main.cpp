@@ -39,7 +39,7 @@ void showFrameRate();
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
-//DEBUG
+//Variables used for debugging (frame rate)
 GLuint framesPerSecond = 0;
 double lastTime = 0.0f;
 GLfloat exposure = 1.0f;
@@ -79,7 +79,6 @@ int main() {
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glEnable(GL_DEPTH_TEST);
-
 	//hdr and bloom shaders setup
 	Shader hdrShader("Shaders/vertex_hdr.glsl", "Shaders/fragment_hdr.glsl");
 	hdrShader.use();
@@ -140,8 +139,6 @@ int main() {
 		if (rayCallback.hasHit()) {
 			sceneType *val = static_cast<sceneType *>(rayCallback.m_collisionObject->getUserPointer());
 			currentSceneType = *val;
-			//DEBUG
-			std::cout << "Crossed -> " << *val << std::endl;
 		}
 
 		processInput(window);
@@ -170,8 +167,6 @@ int main() {
 		hdrQuad.Draw();
 		//Swap double buffer and poll events
 		glfwSwapBuffers(window);
-		//DEBUG
-		//showFrameRate();
 		glfwPollEvents();
 	}
 	physicsSimulation.Clear();
@@ -298,10 +293,6 @@ void processInput(GLFWwindow *w) {
 	}
 	if (glfwGetKey(w, GLFW_KEY_D) == GLFW_PRESS) {
 		camera.ProcessKeyboard(RIGHT);
-	}
-	//DEBUG
-	if (glfwGetKey(w, GLFW_KEY_SPACE) == GLFW_PRESS) {
-		std::cout << camera.Position.x << "-" << camera.Position.y << "-" << camera.Position.z << std::endl;
 	}
 }
 

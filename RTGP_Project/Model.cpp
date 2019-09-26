@@ -34,7 +34,6 @@ Model::~Model()
 void Model::loadModel(std::string path)
 {
 	Assimp::Importer import;
-	//DEBUG
 	const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs 
 		| aiProcess_CalcTangentSpace);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -153,7 +152,6 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial * mat, aiTextureType
 	{
 		aiString str;
 		mat->GetTexture(type, i, &str);
-		//DEBUG
 		if (type == aiTextureType_DISPLACEMENT)
 			std::cout << str.C_Str() << std::endl;
 		bool skip = false;

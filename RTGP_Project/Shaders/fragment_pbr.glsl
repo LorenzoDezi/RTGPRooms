@@ -79,8 +79,6 @@ float ShadowCalculation(vec3 normal, vec3 lightDir) {
 		for (int y = -1; y <= 1; y++)
 		{
 			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			//DEBUG: actually it's 0.6
-			//debug: currentDepth - bias
 			shadow += currentDepth - bias > pcfDepth ? 0.7 : 0.0;
 		}
 	}
