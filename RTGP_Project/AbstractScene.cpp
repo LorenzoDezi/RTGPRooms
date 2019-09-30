@@ -6,8 +6,6 @@ AbstractScene::AbstractScene(Physics & simulation, Model & roomModel, std::vecto
 	float screenWidth, float screenHeight) :
 	shader("Shaders/vertex_abstract.glsl", "Shaders/fragment_abstract.glsl", nullptr, 
 		"Shaders/tControl_abstract.glsl", "Shaders/tEvaluation_abstract.glsl"),
-	faceShader("Shaders/vertex_abstract.glsl", "Shaders/fragment_face.glsl", nullptr,
-		"Shaders/tControl_abstract.glsl", "Shaders/tEvaluation_face.glsl"),
 	doorShader("Shaders/vertex_door.glsl", "Shaders/fragment_door.glsl"),
 	bezierShader("Shaders/vertex_bezier.glsl", "Shaders/fragment_bezier.glsl", nullptr, 
 		"Shaders/tControl_bezier.glsl", "Shaders/tEvaluation_bezier.glsl"),
@@ -60,7 +58,7 @@ void AbstractScene::Draw(Camera & camera, float time)
 	bezierShader.use();
 	bezierShader.setMat4Float("view", glm::value_ptr(view));
 	bezierShader.setMat4Float("projection", glm::value_ptr(projection));
-	faceShader.setFloat("time", time);
+	bezierShader.setFloat("time", time);
 
 	//Doors rendering
 	doorShader.use();

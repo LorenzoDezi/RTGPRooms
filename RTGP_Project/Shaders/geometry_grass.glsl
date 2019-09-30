@@ -1,4 +1,4 @@
-#version 330  core
+#version 430  core
 
 layout(points) in;
 layout(triangle_strip) out;
@@ -74,14 +74,11 @@ void main()
 	
 	//the size of the quad
 	float grassPatchSize = 0.6;
-	float windStrenght = 0.2;
-	
-	vec3 windDir = vec3(1.0, 0.0, 1.0);
-	windDir = normalize(windDir);
+	//Wind direction
+	vec3 windDir = normalize(vec3(1.0, 0.0, 1.0));
 	for(int i = 0; i < 3; i++)
 	{
 		// Grass patch top left vertex
-		vec3 baseDirRotated = (rotationMatrix(vec3(0, 1, 0), sin(time*0.7)*0.1) * vec4(baseDir[i], 1.0)).xyz;
 		//Changing the seed of the random function at every quad
 		LocalSeed = GrassFieldPos*float(i);
 		//Also the x start position of the quad is changed randomly...
@@ -94,14 +91,9 @@ void main()
 		float quadEndX = quadStartX+0.25;
 		
 		//Wind power calculation
-		float windPower = 0.5+sin(GrassFieldPos.x/30 + GrassFieldPos.z/30 + time*(1.2+windStrenght/20.0));
-		if(windPower < 0.0)
-			windPower = windPower*0.2;
-		else windPower = windPower*0.3;
-		windPower *= windStrenght;
+		float windPower = (0.5+sin(time*(1.2))) * 0.04;
 		
-
-		vec3 topLeftPos = GrassFieldPos - baseDirRotated * grassPatchSize*0.5 + windDir*windPower;
+		vec3 topLeftPos = GrassFieldPos - baseDir[i] * grassPatchSize*0.5 + windDir*windPower;
 		topLeftPos.y += grassPatchHeight;
 		gl_Position = mMVP*vec4(topLeftPos, 1.0);
 		TexCoord = vec2(0.0, 1.0);
@@ -122,7 +114,7 @@ void main()
 		EmitVertex();
 		                               
 		// Grass patch top right vertex
-		vec3 topRightPos = GrassFieldPos + baseDirRotated * grassPatchSize*0.5 + windDir*windPower;
+		vec3 topRightPos = GrassFieldPos + baseDir[i] * grassPatchSize*0.5 + windDir*windPower;
 		topRightPos.y += grassPatchHeight;  
 		gl_Position = mMVP*vec4(topRightPos, 1.0);
 		TexCoord = vec2(1.0, 1.0);

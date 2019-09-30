@@ -22,7 +22,6 @@ public:
 private:
 	Shader shader;
 	Shader doorShader;
-	Shader faceShader;
 	Shader skyboxShader;
 	Shader bezierShader;
 
