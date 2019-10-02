@@ -29,8 +29,8 @@ CorridorScene::CorridorScene(Physics &simulation, Model &roomModel, std::vector<
 		glm::vec3(1.60f, 2.75f, 4.90f),
 		glm::vec3(1.60f, 2.75f, -4.90f),
 		glm::vec3(1.60f, 2.75f, -2.75f),
-		glm::vec3(-1.60f, 2.75f, -1.0f),
-		glm::vec3(-1.60f, 2.75f, 1.0f) },
+		glm::vec3(-1.60f, 2.75f, -1.00f),
+		glm::vec3(-1.60f, 2.75f, 1.00f) },
 	doors(doors), 
 	lightDir(0.0f, -1.0f, 0.0f) {
 	std::vector<std::shared_ptr<Shader>> shaders {
@@ -56,15 +56,15 @@ void CorridorScene::Draw(Camera &camera, float time)
 
 	//Light setup
 	model->setLightParameters(
-		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.002f, 0.002f, 0.002f), glm::vec3(0.0f, 0.0f, 0.0f));
+		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.000f, 0.000f, 0.000f), glm::vec3(0.0f, 0.0f, 0.0f));
 	model->setDirLight(lightDir);
 
 	//lights rendering
 	shaderLight.use();
 	shaderLight.setMat4Float("view", glm::value_ptr(view));
 	shaderLight.setMat4Float("projection", glm::value_ptr(projection));
-	model->setLightParameters(glm::vec3(3.0f, 3.0f, 3.0f),
-		glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(3.0f, 3.0f, 3.0f));
+	model->setLightParameters(glm::vec3(4.5f, 4.5f, 4.5f),
+		glm::vec3(1.5f, 1.5f, 1.5f), glm::vec3(0.2f, 0.2f, 0.2f));
 	for (int i = 0; i < NR_CORRIDOR_POINT_LIGHTS; i++) {
 		model->setPointLight(pointLightPositions[i], i);
 		shaderLight.use();

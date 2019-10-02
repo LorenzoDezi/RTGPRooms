@@ -67,7 +67,7 @@ void main() {
 	vec3 norm = vec3(texture(material.texture_normals, texCoords));
 	norm = normalize(norm * 2.0 - 1.0);
 	norm = normalize(TBN * norm);
-	vec3 viewDir = normalize(viewPos - FragPos);
+	vec3 viewDir = normalize(TBN * (viewPos - FragPos));
 	vec3 result = CalcDirLight(dirLight, norm, viewDir, texCoords);
 	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
 		result += CalcPointLight(pointLights[i], norm, FragPos, viewDir, texCoords);
@@ -83,7 +83,7 @@ void main() {
 }
 
 vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir, vec2 texCoords) {
-	vec3 lightDir = normalize(light.direction);
+	vec3 lightDir = normalize(TBN * -light.direction);
 	//Ambient calculation
 	vec3 ambient = vec3(texture(material.texture_diffuse, texCoords)) * light.ambient * material.Ka;
 	//diffuse calculation
@@ -98,7 +98,7 @@ vec3 CalcDirLight(DirLight light, vec3 norm, vec3 viewDir, vec2 texCoords) {
 }
 
 vec3 CalcPointLight(PointLight light, vec3 norm, vec3 fragPos, vec3 viewDir, vec2 texCoords) {
-	vec3 lightDir = normalize(light.position - fragPos);
+	vec3 lightDir = normalize(TBN * (light.position - fragPos));
 	float distance = length(light.position - fragPos);
 	float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 	//Ambient calculation
