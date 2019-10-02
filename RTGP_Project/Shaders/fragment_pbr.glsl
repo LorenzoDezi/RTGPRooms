@@ -20,14 +20,14 @@ in vec3 FragPos;
 in vec3 Normal;
 in vec4 LightSpaceFragPos;
 in mat3 TBN;
+#define NR_DIR_LIGHTS 1
+in DirLight FragDirLight[NR_DIR_LIGHTS];
 
 out vec4 FragColor;
 
 uniform vec3 viewPos;
 uniform float textureScale;
 uniform Material material;
-#define NR_DIR_LIGHTS 2
-uniform DirLight dirLight[NR_DIR_LIGHTS];
 uniform sampler2D depthMap;
 
 const float PI = 3.14159265359;
@@ -46,14 +46,14 @@ void main()
 	vec3 N = vec3(texture(material.texture_normals, texCoords));
 	N = normalize(N * 2.0 - 1.0);
 	N = normalize(TBN * N);
-	vec3 V = normalize(viewPos - FragPos);
+	vec3 V = normalize(TBN * (viewPos - FragPos));
 	vec3 albedo = vec3(texture(material.texture_diffuse, texCoords));
 	vec3 Lo = vec3(0.0, 0.0, 0.0);
 	for (int i = 0; i < NR_DIR_LIGHTS; i++) {
-		Lo += CalcDirLight(dirLight[i], N, V, albedo);
+		Lo += CalcDirLight(FragDirLight[i], N, V, albedo);
 	}
 	float ao = texture(material.texture_ao, texCoords).r;
-	float shadow = ShadowCalculation(N, dirLight[0].direction);
+	float shadow = ShadowCalculation(N, FragDirLight[0].direction);
 	vec3 ambient = vec3(0.03) * albedo * ao;
 	vec3 color = (Lo + ambient) * (1.0 - shadow);
 	//Tonemapping with reinhart operator
@@ -79,7 +79,7 @@ float ShadowCalculation(vec3 normal, vec3 lightDir) {
 		for (int y = -1; y <= 1; y++)
 		{
 			float pcfDepth = texture(depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
-			shadow += currentDepth - bias > pcfDepth ? 0.7 : 0.0;
+			shadow += currentDepth - bias > pcfDepth ? 0.5 : 0.0;
 		}
 	}
 	shadow /= 9.0;

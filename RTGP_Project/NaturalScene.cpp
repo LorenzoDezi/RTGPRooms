@@ -55,10 +55,7 @@ void NaturalScene::Draw(Camera &camera, float time)
 	shader.setMat4Float("projection", glm::value_ptr(projection));
 	shader.setVec3Float("viewPos", camera.Position.x, camera.Position.y, camera.Position.z);
 	model->setLightColor(glm::vec3(5.5f, 5.5f, 5.5f));
-	model->setDirLight(glm::vec3(-0.4f, 1.0f, -0.4f));
-	model->setLightColor(glm::vec3(2.0f, 2.0f, 2.0f));
-	model->setDirLight(glm::vec3(0.4f, 1.0f, 0.4f));
-
+	model->setDirLight(glm::vec3(-0.2f, 1.0f, -0.2f));
 
 	//Doors rendering
 	doorShader.use();
@@ -74,7 +71,6 @@ void NaturalScene::Draw(Camera &camera, float time)
 	
 	//room rendering
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 	shader.use();
 	shader.setMat4Float("model", glm::value_ptr(model));
 	shader.setFloat("textureScale", 4.0f);
@@ -105,7 +101,6 @@ void NaturalScene::DrawSceneDepth()
 	depthShader.use();
 	depthShader.setMat4Float("model", glm::value_ptr(model));
 	depthShader.setMat4Float("lightSpaceMatrix", glm::value_ptr(lightSpaceMatrix));
-	roomModel->Draw(depthShader);
 	model = glm::translate(model, glm::vec3(-4.0f, 0.3f, 0.0f));
 	depthShader.setMat4Float("model", glm::value_ptr(model));
 	treeLeavesModel.Draw(depthShader);
@@ -149,7 +144,7 @@ void NaturalScene::buildShadowMap()
 	float near_plane = 1.0f, far_plane = 15.0f;
 	glm::mat4 lightProjection = glm::ortho(-5.0f, 5.0f, 
 		-10.0f, 10.0f, near_plane, far_plane);
-	glm::vec3 lightPosition(-4.0f, 10.5f, -4.7f);
+	glm::vec3 lightPosition(-4.0f, 8.5f, -5.7f);
 	glm::mat4 lightView = glm::lookAt(lightPosition,
 		glm::vec3(-4.0f, 0.3f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));

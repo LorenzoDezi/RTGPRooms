@@ -27,7 +27,6 @@ mat4 rotationMatrix(vec3 axis, float angle)
     float s = sin(angle);
     float c = cos(angle);
     float oc = 1.0 - c;
-    
     return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
                 oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
                 oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
@@ -92,7 +91,6 @@ void main()
 		
 		//Wind power calculation
 		float windPower = (0.5+sin(time*(1.2))) * 0.04;
-		
 		vec3 topLeftPos = GrassFieldPos - baseDir[i] * grassPatchSize*0.5 + windDir*windPower;
 		topLeftPos.y += grassPatchHeight;
 		gl_Position = mMVP*vec4(topLeftPos, 1.0);

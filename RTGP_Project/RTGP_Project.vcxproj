@@ -154,12 +154,13 @@
     <LibraryPath>D:\OpenGLLearn\libs\glfw;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\bullet;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\bullet;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\stb_image;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\glm;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\glfw;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\glad;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\assimp;$(IncludePath)</IncludePath>
     <LibraryPath>D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\bullet\Debug;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\glm;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\glfw;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\glad;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\assimp;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include;$(IncludePath)</IncludePath>
+    <IncludePath>D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\bullet;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\stb_image;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\glm;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\glfw;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\glad;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\include\;$(IncludePath)</IncludePath>
     <LibraryPath>D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\bullet;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\glm;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\glfw;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\glad;D:\OpenGLLearn\Projects\VisualStudioProjects\RTGP_Project\RTGP_Project\libs\assimp;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -195,11 +196,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>LinearMath.lib;Bullet2FileLoader.lib;BulletWorldImporter.lib;BulletInverseDynamicsUtils.lib;BulletCollision.lib;BulletDynamics.lib;BulletInverseDynamics.lib;opengl32.lib;glfw3.lib;glad.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LinearMath.lib;BulletCollision.lib;BulletDynamics.lib;opengl32.lib;glfw3.lib;glad.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
