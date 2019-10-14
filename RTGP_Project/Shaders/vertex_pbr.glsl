@@ -31,9 +31,6 @@ void main() {
 	FragPos = vec3(model * vec4(aPos, 1.0));
 	LightSpaceFragPos = lightSpaceMatrix * vec4(FragPos, 1.0);
 	TexCoords = texCoords;
-	//For simplicity we calculate the normal matrix here but it is better to
-	//calculate in the CPU and then pass it via uniform, because it's costly
-	//for each vertex
 	Normal = mat3(inverse(transpose(model))) * aNormal;
 	//Calculating TBN matrix for tangent space
 	vec3 T = normalize(vec3(model * vec4(tangent, 0.0)));

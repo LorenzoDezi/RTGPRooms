@@ -17,13 +17,12 @@ BezierSurface::BezierSurface(std::vector<glm::vec3> &controlPoints) :
 
 void BezierSurface::Update(float time)
 {
-	srand(NULL);
 	for (int i = 0; i < 4; i++) {
-		int sign = i % 2 == 0 ? 1 : -1;
+		int i_sign = i % 2 == 0 ? 1 : -1;
 		for (int j = 0; j < 4; j++) {
 			int j_sign = j % 2 == 0 ? 1 : -1;
 			controlPoints[i * 4 + j].z += cos(time * 3.5) * 0.006f * j_sign;
-			controlPoints[i * 4 + j].y += cos(time * 3) * 0.02f * -sign;
+			controlPoints[i * 4 + j].y += cos(time * 3) * 0.02f * -i_sign;
 		}
 	}
 	glBindVertexArray(VAO);

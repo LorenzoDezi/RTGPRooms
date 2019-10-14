@@ -54,7 +54,7 @@ void ToonScene::Draw(Camera & camera, float time)
 	skybox.Draw(skyboxShader, view, projection);
 	//Gundam rendering
 	shader.use();
-	this->model->setMaterial(0.2f, 0.8f, 1.0f, 0.8f);
+	this->model->setMaterial(0.2f, 0.8f, 1.0f, 3.0f);
 	glm::mat4 model = glm::mat4(1.0f);
 	shader.setFloat("textureScale", 1.0f);
 	model = glm::translate(model, glm::vec3(8.3f, 1.9f, 4.7f));

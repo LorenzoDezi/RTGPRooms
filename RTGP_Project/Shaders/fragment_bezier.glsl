@@ -51,10 +51,10 @@ void main() {
 	float DF = 0.0;
 	// Add a random position
 	float a = 0.0;
-	vec2 vel = vec2(time*3.);
+	vec2 vel = vec2(time*.5);
 	DF += snoise(pos + vel)*.8 + .8;
 	// Add a random position
-	a = snoise(pos*vec2(cos(time*0.5), sin(time*0.35))*0.1)*3.1415;
+	a = snoise(pos*vec2(cos(time*0.03), sin(time*0.03))*0.01)*3.1415;
 	vel = vec2(cos(a), sin(a));
 	DF += snoise(pos + vel)*.25 + .25;
 	color = vec3(smoothstep(.7, .75, fract(DF))) * vec3(4.0, 0.0, 0.0) + baseColor;
